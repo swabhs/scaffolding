@@ -39,7 +39,7 @@ cffi==1.11.2
 awscli>=1.11.91
 
 # REST interface for models
-flask==0.12.1
+flask==0.12.3
 flask-cors==3.0.3
 
 # Talk to postgres demo database

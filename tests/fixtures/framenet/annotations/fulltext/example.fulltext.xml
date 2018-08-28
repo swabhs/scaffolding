@@ -1,0 +1,155 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<?xml-stylesheet type="text/xsl" href="fullText.xsl"?>
+<fullTextAnnotation xsi:schemaLocation="../schema/fullText.xsd" xmlns="http://framenet.icsi.berkeley.edu" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+    <header>
+        <corpus description="Miscellaneous" name="Miscellaneous" ID="175">
+            <document description="This is a 5-sentence news story about alleged White House gunman Robert Pickett." name="Pickett" ID="6"/>
+        </corpus>
+    </header>
+    <sentence corpID="175" docID="6" sentNo="1" paragNo="3" aPos="0" ID="239740">
+        <text>The magistrate set a preliminary hearing for next Tuesday and ordered Pickett held without bond .</text>
+        <annotationSet cDate="01/06/2003 08:08:39 PST Mon" status="UNANN" ID="125959">
+            <layer rank="1" name="BNC">
+                <label end="2" start="0" name="AT0"/>
+                <label end="13" start="4" name="NN1"/>
+                <label end="17" start="15" name="VVD"/>
+                <label end="19" start="19" name="AT0"/>
+                <label end="31" start="21" name="AJ0"/>
+                <label end="39" start="33" name="NN1"/>
+                <label end="43" start="41" name="PRP"/>
+                <label end="48" start="45" name="ORD"/>
+                <label end="56" start="50" name="NP0"/>
+                <label end="60" start="58" name="CJC"/>
+                <label end="68" start="62" name="VVD"/>
+                <label end="76" start="70" name="NP0"/>
+                <label end="81" start="78" name="VVD"/>
+                <label end="89" start="83" name="PRP"/>
+                <label end="94" start="91" name="NN1"/>
+                <label end="96" start="96" name="PUN"/>
+            </layer>
+            <layer rank="1" name="NER"/>
+            <layer rank="1" name="WSL"/>
+        </annotationSet>
+        <annotationSet cDate="01/22/2004 04:44:31 PST Thu" luID="3995" luName="Tuesday.n" frameID="229" frameName="Calendric_unit" status="MANUAL" ID="1952959">
+            <layer rank="1" name="Target">
+                <label cBy="MJE" end="56" start="50" name="Target"/>
+            </layer>
+            <layer rank="1" name="FE">
+                <label cBy="MJE" feID="1993" bgColor="FFA500" fgColor="FFFFFF" end="48" start="45" name="Relative_time"/>
+                <label cBy="AnW" feID="10331" bgColor="FF0000" fgColor="FFFFFF" end="56" start="50" name="Unit"/>
+            </layer>
+            <layer rank="1" name="GF">
+                <label end="48" start="45" name="Dep"/>
+            </layer>
+            <layer rank="1" name="PT">
+                <label end="48" start="45" name="A"/>
+            </layer>
+            <layer rank="1" name="Other"/>
+            <layer rank="1" name="Sent"/>
+            <layer rank="1" name="Noun">
+                <label end="56" start="41" name="X"/>
+                <label end="17" start="15" name="Gov"/>
+            </layer>
+        </annotationSet>
+        <annotationSet cDate="01/22/2004 04:45:26 PST Thu" luID="2428" luName="order.v" frameID="121" frameName="Bail_decision" status="MANUAL" ID="1952960">
+            <layer rank="1" name="Target">
+                <label cBy="MJE" end="68" start="62" name="Target"/>
+            </layer>
+            <layer rank="1" name="FE">
+                <label cBy="MJE" feID="620" bgColor="0000FF" fgColor="FFFFFF" end="76" start="70" name="Accused"/>
+                <label cBy="MJE" feID="622" bgColor="9F79EE" fgColor="FFFFFF" end="94" start="78" name="Status"/>
+                <label cBy="MJE" feID="621" bgColor="FF0000" fgColor="FFFFFF" end="13" start="0" name="Judge"/>
+            </layer>
+            <layer rank="1" name="GF">
+                <label end="76" start="70" name="Obj"/>
+                <label end="94" start="78" name="Dep"/>
+                <label end="13" start="0" name="Ext"/>
+            </layer>
+            <layer rank="1" name="PT">
+                <label end="76" start="70" name="NP"/>
+                <label end="94" start="78" name="AJP"/>
+                <label end="13" start="0" name="NP"/>
+            </layer>
+            <layer rank="1" name="Other"/>
+            <layer rank="1" name="Sent"/>
+            <layer rank="1" name="Verb"/>
+        </annotationSet>
+        <annotationSet cDate="07/30/2010 07:28:33 PDT Fri" luID="2430" luName="bond.n" frameID="121" frameName="Bail_decision" status="MANUAL" ID="2600223">
+            <layer rank="1" name="Target">
+                <label cBy="MJE" end="94" start="91" name="Target"/>
+            </layer>
+            <layer rank="1" name="FE">
+                <label cBy="MJE" feID="620" bgColor="0000FF" fgColor="FFFFFF" end="76" start="70" name="Accused"/>
+            </layer>
+            <layer rank="1" name="GF">
+                <label end="76" start="70" name="Ext"/>
+            </layer>
+            <layer rank="1" name="PT">
+                <label end="76" start="70" name="NP"/>
+            </layer>
+            <layer rank="1" name="Other"/>
+            <layer rank="1" name="Sent"/>
+            <layer rank="1" name="Noun">
+                <label end="94" start="83" name="X"/>
+                <label end="81" start="78" name="Gov"/>
+            </layer>
+        </annotationSet>
+        <annotationSet cDate="07/30/2010 07:30:18 PDT Fri" luID="14346" luName="preliminary.a" frameID="1928" frameName="Preliminaries" status="MANUAL" ID="2600224">
+            <layer rank="1" name="Target">
+                <label cBy="MJE" end="31" start="21" name="Target"/>
+            </layer>
+            <layer rank="2" name="FE">
+                <label cBy="MJE" feID="11620" bgColor="0000FF" fgColor="FFFFFF" end="39" start="33" name="Preparatory_act"/>
+                <label cBy="MJE" feID="11619" itype="INI" bgColor="FF0000" fgColor="FFFFFF" name="Agent"/>
+                <label cBy="MJE" feID="11621" itype="INI" bgColor="800080" fgColor="FFFFFF" name="Purpose"/>
+            </layer>
+            <layer rank="1" name="GF">
+                <label end="39" start="33" name="Dep"/>
+            </layer>
+            <layer rank="1" name="PT">
+                <label end="39" start="33" name="NP"/>
+            </layer>
+            <layer rank="1" name="Other"/>
+            <layer rank="1" name="Sent"/>
+            <layer rank="1" name="Adj"/>
+        </annotationSet>
+    </sentence>
+    <sentence corpID="175" docID="6" sentNo="1" paragNo="5" aPos="0" ID="239742">
+        <text>He did not enter a plea .</text>
+        <annotationSet cDate="01/06/2003 08:08:39 PST Mon" status="UNANN" ID="125961">
+            <layer rank="1" name="BNC">
+                <label end="1" start="0" name="PNP"/>
+                <label end="5" start="3" name="VDD"/>
+                <label end="15" start="11" name="VVI"/>
+                <label end="17" start="17" name="AT0"/>
+                <!-- <label end="22" start="19" name="NN1"/> -->
+                <label end="24" start="24" name="PUN"/>
+                <label end="9" start="7" name="XX0"/>
+            </layer>
+            <layer rank="1" name="NER"/>
+            <layer rank="1" name="WSL"/>
+        </annotationSet>
+        <annotationSet cDate="07/30/2010 07:32:59 PDT Fri" luID="8973" luName="plea.n" frameID="130" frameName="Entering_of_plea" status="MANUAL" ID="2600225">
+            <layer rank="1" name="Target">
+                <label cBy="MJE" end="22" start="19" name="Target"/>
+            </layer>
+            <layer rank="1" name="FE">
+                <!-- <label cBy="MJE" feID="814" bgColor="FF0000" fgColor="FFFFFF" end="1" start="0" name="Accused"/>
+                <label cBy="MJE" feID="1636" itype="DNI" bgColor="A52A2A" fgColor="FFFFFF" name="Charges"/>
+                <label cBy="MJE" feID="1637" itype="INI" bgColor="800080" fgColor="FFFFFF" name="Plea"/>
+                <label cBy="MJE" feID="813" itype="INI" bgColor="00008B" fgColor="FFFFFF" name="Judge"/> -->
+            </layer>
+            <layer rank="1" name="GF">
+                <label end="1" start="0" name="Ext"/>
+            </layer>
+            <layer rank="1" name="PT">
+                <label end="1" start="0" name="NP"/>
+            </layer>
+            <layer rank="1" name="Other"/>
+            <layer rank="1" name="Sent"/>
+            <layer rank="1" name="Noun">
+                <label end="15" start="11" name="Supp"/>
+            </layer>
+        </annotationSet>
+    </sentence>
+</fullTextAnnotation>

@@ -1,0 +1,64 @@
+{
+  "dataset_reader": {
+    "type": "phrase_syntax",
+    "max_span_width": 25
+  },
+  "train_data_path": "data/conll-formatted-ontonotes-5.0-12/conll-formatted-ontonotes-5.0/data/train/",
+  "validation_data_path": "data/conll-formatted-ontonotes-5.0-12/conll-formatted-ontonotes-5.0/data/development/",
+  "model": {
+    "type": "constit_labeler",
+    "text_field_embedder": {
+      "tokens": {
+        "type": "embedding",
+        "embedding_dim": 100,
+        "pretrained_file": "data/glove.6B.100d.txt.gz",
+        "trainable": true
+      }
+    },
+    "initializer": [
+      [
+        "tag_projection_layer.*weight",
+        {
+          "type": "orthogonal"
+        }
+      ]
+    ],
+    "stacked_encoder": {
+      "type": "alternating_highway_lstm_cuda",
+      "input_size": 100,
+      "hidden_size": 300,
+      "num_layers": 6,
+      "recurrent_dropout_probability": 0.1
+    },
+    "span_feedforward": {
+      "input_dim": 602,
+      "num_layers": 2,
+      "hidden_dims": 150,
+      "activations": "relu",
+      "dropout": 0.2
+    },
+    "max_span_width": 25,
+    "span_width_feature_size": 2
+  },
+  "iterator": {
+    "type": "bucket",
+    "sorting_keys": [
+      [
+        "tokens",
+        "num_tokens"
+      ]
+    ],
+    "batch_size": 512
+  },
+  "trainer": {
+    "num_epochs": 500,
+    "grad_clipping": 1.0,
+    "patience": 20,
+    "validation_metric": "+accuracy",
+    "cuda_device": 0,
+    "optimizer": {
+      "type": "adam",
+      "lr": 0.001
+    }
+  }
+}

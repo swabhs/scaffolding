@@ -1,0 +1,20 @@
+.vscode/
+*.png
+*.ipynb
+log_*/
+data/glove
+data/conll
+*.pyc
+.cache/
+.coverage
+doc/_build/
+allennlp/bin/
+
+# build artifacts
+allennlp.egg-info/
+.eggs/
+build/
+dist/
+.mypy_cache
+.history
+

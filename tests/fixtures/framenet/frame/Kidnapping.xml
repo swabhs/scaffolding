@@ -1,0 +1,144 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<?xml-stylesheet type="text/xsl" href="frame.xsl"?>
+<frame cBy="197" cDate="05/30/2001 02:42:15 PDT Wed" name="Kidnapping" ID="122" xsi:schemaLocation="../schema/frame.xsd" xmlns="http://framenet.icsi.berkeley.edu" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+    <definition>&lt;def-root&gt;The words in this frame describe situations in which a &lt;fen&gt;Perpetrator&lt;/fen&gt; carries off and holds the &lt;fen&gt;Victim&lt;/fen&gt; against his or her will by force.&lt;/def-root&gt;</definition>
+    <FE bgColor="FF0000" fgColor="FFFFFF" coreType="Core" cBy="197" cDate="05/30/2001 02:47:36 PDT Wed" abbrev="Perp" name="Perpetrator" ID="627">
+        <definition>&lt;def-root&gt;The &lt;fen&gt;Perpetrator&lt;/fen&gt; is the person (or other agent) who carries off and holds the &lt;fen&gt;Victim&lt;/fen&gt; against his or her will.&lt;/def-root&gt;</definition>
+        <semType name="Sentient" ID="5"/>
+    </FE>
+    <FE bgColor="00008B" fgColor="FFFFFF" coreType="Core" cBy="197" cDate="05/30/2001 02:49:35 PDT Wed" abbrev="Vict" name="Victim" ID="628">
+        <definition>&lt;def-root&gt;The &lt;fen&gt;Victim&lt;/fen&gt; is the person who is carried off and held against his/her will.&lt;/def-root&gt;</definition>
+        <semType name="Sentient" ID="5"/>
+    </FE>
+    <FE bgColor="7CCD7C" fgColor="000000" coreType="Peripheral" cBy="197" cDate="05/30/2001 04:26:18 PDT Wed" abbrev="Place" name="Place" ID="636">
+        <definition>&lt;def-root&gt;Where the kidnapping takes place.&lt;/def-root&gt;</definition>
+        <semType name="Locative_relation" ID="182"/>
+    </FE>
+    <FE bgColor="FFA500" fgColor="FFFFFF" coreType="Peripheral" cBy="197" cDate="05/30/2001 04:26:19 PDT Wed" abbrev="Time" name="Time" ID="637">
+        <definition>&lt;def-root&gt;When the kidnapping occurs.&lt;/def-root&gt;</definition>
+        <semType name="Time" ID="141"/>
+    </FE>
+    <FE bgColor="006400" fgColor="FFFFFF" coreType="Peripheral" cBy="197" cDate="05/30/2001 04:27:40 PDT Wed" abbrev="Src" name="Source" ID="638">
+        <definition>&lt;def-root&gt;&lt;fen&gt;Source&lt;/fen&gt; is the initial location of the &lt;fen&gt;Victim&lt;/fen&gt; before it changes location.&lt;/def-root&gt;</definition>
+        <semType name="Source" ID="151"/>
+    </FE>
+    <FE bgColor="00BFFF" fgColor="FFFFFF" coreType="Peripheral" cBy="197" cDate="05/31/2001 02:25:13 PDT Thu" abbrev="GOAL" name="Goal" ID="642">
+        <definition>&lt;def-root&gt;&lt;fen&gt;Goal&lt;/fen&gt; is the place in which the &lt;fen&gt;Victim&lt;/fen&gt; ends up.&lt;/def-root&gt;</definition>
+        <semType name="Goal" ID="153"/>
+    </FE>
+    <FE bgColor="FF69B4" fgColor="FFFFFF" coreType="Peripheral" cBy="197" cDate="05/31/2001 02:26:08 PDT Thu" abbrev="Degr" name="Degree" ID="643">
+        <definition>&lt;def-root&gt;Degree to which event occurs&lt;/def-root&gt;</definition>
+        <semType name="Degree" ID="172"/>
+    </FE>
+    <FE bgColor="FF00FF" fgColor="FFFFFF" coreType="Peripheral" cBy="197" cDate="05/31/2001 02:26:08 PDT Thu" abbrev="Manr" name="Manner" ID="647">
+        <definition>&lt;def-root&gt;Manner in which the kidnapping takes place.&lt;/def-root&gt;</definition>
+        <semType name="Manner" ID="173"/>
+    </FE>
+    <FE bgColor="0000FF" fgColor="FFFFFF" coreType="Peripheral" cBy="197" cDate="05/31/2001 02:26:08 PDT Thu" abbrev="Means" name="Means" ID="648">
+        <definition>&lt;def-root&gt;An act performed by the &lt;fen&gt;Perpetrator&lt;/fen&gt; that helps them accomplish the kidnapping.&lt;/def-root&gt;</definition>
+        <semType name="State_of_affairs" ID="177"/>
+    </FE>
+    <FE bgColor="800080" fgColor="FFFFFF" coreType="Peripheral" cBy="296" cDate="08/20/2002 02:42:32 PDT Tue" abbrev="Pur" name="Purpose" ID="3590">
+        <definition>&lt;def-root&gt;The &lt;fen&gt;Purpose&lt;/fen&gt; is what the &lt;fen&gt;Perpetrator&lt;/fen&gt; hopes to accomplish by kidnapping.&lt;/def-root&gt;</definition>
+        <semType name="State_of_affairs" ID="177"/>
+    </FE>
+    <FE bgColor="00008B" fgColor="FFFFFF" coreType="Peripheral" cBy="296" cDate="08/20/2002 02:49:36 PDT Tue" abbrev="Reas" name="Reason" ID="3591">
+        <definition>&lt;def-root&gt;The &lt;fen&gt;Reason&lt;/fen&gt; is why the &lt;fen&gt;Perpetrator&lt;/fen&gt; commits the kidnapping.&lt;/def-root&gt;</definition>
+        <semType name="State_of_affairs" ID="177"/>
+    </FE>
+    <FE bgColor="FFFFFF" fgColor="FF0000" coreType="Peripheral" cBy="664" cDate="06/10/2003 07:39:32 PDT Tue" abbrev="" name="Event" ID="4609">
+        <definition>&lt;def-root&gt;The abduction of a &lt;fen&gt;Victim&lt;/fen&gt; by a &lt;fen&gt;Perpetrator&lt;/fen&gt;.&lt;/def-root&gt;</definition>
+        <semType name="State_of_affairs" ID="177"/>
+    </FE>
+    <FE bgColor="9F79EE" fgColor="FFFFFF" coreType="Extra-Thematic" cBy="618" cDate="07/23/2003 03:30:52 PDT Wed" abbrev="CA" name="Co_abductee" ID="4823">
+        <definition>&lt;def-root&gt;An additional abductee taken along with the &lt;fen&gt;Victim&lt;/fen&gt;.
+&lt;ex&gt;She was &lt;t&gt;abducted&lt;/t&gt; &lt;fex name="CA"&gt;with her brother&lt;/fex&gt;.&lt;/ex&gt;&lt;/def-root&gt;</definition>
+    </FE>
+    <FE bgColor="A52A2A" fgColor="FFFFFF" coreType="Peripheral" cBy="309" cDate="10/02/2003 11:40:55 PDT Thu" abbrev="Dur" name="Duration" ID="5462">
+        <definition>&lt;def-root&gt;The period of time for which the &lt;fen&gt;Victim&lt;/fen&gt; is held by the &lt;fen&gt;Perpetrator&lt;/fen&gt;
+
+&lt;ex&gt;Two young man &lt;t&gt;abducted&lt;/t&gt; her &lt;fex name="Duration"&gt;for about two hours&lt;/fex&gt;&lt;/ex&gt;&lt;/def-root&gt;</definition>
+        <semType name="Duration" ID="142"/>
+    </FE>
+    <FE bgColor="0000FF" fgColor="FFFFFF" coreType="Extra-Thematic" cBy="309" cDate="10/02/2003 11:40:55 PDT Thu" abbrev="Freq" name="Frequency" ID="5463">
+        <definition>&lt;def-root&gt;The number of times that the &lt;fen&gt;Victim&lt;/fen&gt; is kidnapped.
+
+&lt;ex&gt; The prelate was &lt;t&gt;kidnapped&lt;/t&gt; &lt;fex name="Frequency"&gt;twice&lt;/fex&gt; in the last two years&lt;/ex&gt;&lt;/def-root&gt;</definition>
+    </FE>
+    <frameRelation type="Inherits from">
+        <relatedFrame>Committing_crime</relatedFrame>
+        <relatedFrame>Getting</relatedFrame>
+    </frameRelation>
+    <frameRelation type="Is Inherited by"/>
+    <frameRelation type="Perspective on"/>
+    <frameRelation type="Is Perspectivized in"/>
+    <frameRelation type="Uses"/>
+    <frameRelation type="Is Used by"/>
+    <frameRelation type="Subframe of"/>
+    <frameRelation type="Has Subframe(s)"/>
+    <frameRelation type="Precedes"/>
+    <frameRelation type="Is Preceded by"/>
+    <frameRelation type="Is Inchoative of"/>
+    <frameRelation type="Is Causative of"/>
+    <frameRelation type="See also"/>
+    <lexUnit status="Finished_Initial" POS="V" name="kidnap.v" ID="2456" lemmaID="21299" cBy="197" cDate="05/30/2001 02:51:46 PDT Wed">
+        <definition>COD: abduct and hold captive, typically to obtain a ransom. </definition>
+        <sentenceCount annotated="64" total="232"/>
+        <lexeme order="1" headword="false" breakBefore="false" POS="V" name="kidnap"/>
+    </lexUnit>
+    <lexUnit status="Finished_Initial" POS="V" name="abduct.v" ID="2457" lemmaID="94" cBy="197" cDate="05/30/2001 02:57:20 PDT Wed">
+        <definition>COD: take (someone) away illegally by force or deception. </definition>
+        <sentenceCount annotated="86" total="246"/>
+        <lexeme order="1" headword="false" breakBefore="false" POS="V" name="abduct"/>
+    </lexUnit>
+    <lexUnit status="Insufficient_Attestations" POS="V" name="shanghai.v" ID="2458" lemmaID="35380" cBy="197" cDate="05/30/2001 03:15:40 PDT Wed">
+        <definition>COD: force to join a ship's crew by underhand means. </definition>
+        <sentenceCount annotated="1" total="6"/>
+        <lexeme order="1" headword="false" breakBefore="false" POS="V" name="shanghai"/>
+    </lexUnit>
+    <lexUnit status="Insufficient_Attestations" POS="V" name="nab.v" ID="2459" lemmaID="25379" cBy="197" cDate="05/30/2001 03:18:16 PDT Wed">
+        <definition>COD: take or grab suddenly. </definition>
+        <sentenceCount annotated="1" total="37"/>
+        <lexeme order="1" headword="false" breakBefore="false" POS="V" name="nab"/>
+    </lexUnit>
+    <lexUnit status="Finished_Initial" POS="V" name="snatch.v" ID="2460" lemmaID="36613" cBy="197" cDate="05/30/2001 03:24:30 PDT Wed">
+        <definition>COD: steal or kidnap by seizing suddenly. </definition>
+        <sentenceCount annotated="18" total="278"/>
+        <lexeme order="1" headword="false" breakBefore="false" POS="V" name="snatch"/>
+    </lexUnit>
+    <lexUnit status="Finished_Initial" POS="N" name="kidnapping.n" ID="2461" lemmaID="44916" cBy="197" cDate="05/30/2001 03:30:01 PDT Wed">
+        <definition>FN: the act of taking a person against their will, typically to obtain a ransom</definition>
+        <sentenceCount annotated="21" total="64"/>
+        <lexeme order="1" headword="false" breakBefore="false" POS="N" name="kidnapping"/>
+    </lexUnit>
+    <lexUnit status="Finished_Initial" POS="N" name="abduction.n" ID="2462" lemmaID="95" cBy="197" cDate="05/30/2001 03:35:10 PDT Wed">
+        <definition>FN: the action or condition of being taken away illegally by force or deception.</definition>
+        <sentenceCount annotated="37" total="118"/>
+        <lexeme order="1" headword="false" breakBefore="false" POS="N" name="abduction"/>
+    </lexUnit>
+    <lexUnit status="Finished_Initial" POS="N" name="kidnapper.n" ID="2466" lemmaID="21300" cBy="197" cDate="05/31/2001 02:29:39 PDT Thu">
+        <definition>FN: one who abducts and holds (someone) captive, typically to obtain a ransom. </definition>
+        <sentenceCount annotated="23" total="70"/>
+        <lexeme order="1" headword="false" breakBefore="false" POS="N" name="kidnapper"/>
+    </lexUnit>
+    <lexUnit status="Finished_Initial" POS="N" name="abductor.n" ID="2467" lemmaID="44917" cBy="197" cDate="05/31/2001 02:36:04 PDT Thu">
+        <definition>FN: the person who is taking away (someone) illegally by force or decption.</definition>
+        <sentenceCount annotated="9" total="19"/>
+        <lexeme order="1" headword="false" breakBefore="false" POS="N" name="abductor"/>
+    </lexUnit>
+    <lexUnit status="Needs_SCs" POS="N" name="snatcher.n" ID="2468" lemmaID="36614" cBy="197" cDate="05/31/2001 02:38:24 PDT Thu">
+        <definition>FN: one who steals or kidnaps by seizing suddenly. </definition>
+        <sentenceCount annotated="2" total="16"/>
+        <lexeme order="1" headword="false" breakBefore="false" POS="N" name="snatcher"/>
+    </lexUnit>
+    <lexUnit status="Finished_Initial" POS="A" name="kidnapped.a" ID="2469" lemmaID="44918" cBy="197" cDate="05/31/2001 02:45:37 PDT Thu">
+        <definition>FN: abducted and held captive, typically for ransom.</definition>
+        <sentenceCount annotated="19" total="51"/>
+        <lexeme order="1" headword="false" breakBefore="false" POS="A" name="kidnapped"/>
+    </lexUnit>
+    <lexUnit status="Finished_Initial" POS="A" name="abducted.a" ID="2470" lemmaID="44919" cBy="197" cDate="05/31/2001 02:49:56 PDT Thu">
+        <definition>FN: taken away illegally by force or deception.</definition>
+        <sentenceCount annotated="7" total="24"/>
+        <lexeme order="1" headword="false" breakBefore="false" POS="A" name="abducted"/>
+    </lexUnit>
+</frame>

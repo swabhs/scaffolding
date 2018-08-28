@@ -1,0 +1,472 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<?xml-stylesheet type="text/xsl" href="lexUnit.xsl"?>
+<lexUnit status="Finished_Initial" POS="V" name="get_back_((at)).v" ID="10003" frame="Revenge" frameID="347" totalAnnotated="6" xsi:schemaLocation="../schema/lexUnit.xsd" xmlns="http://framenet.icsi.berkeley.edu" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+    <header>
+        <corpus name="BNC2" ID="111">
+            <document description="bncp" ID="421"/>
+        </corpus>
+        <corpus name="AP" ID="113">
+            <document description="apwsE941206.0363" ID="13819"/>
+            <document description="apwsE960221.0431" ID="13821"/>
+            <document description="apwsE941202.0013" ID="13822"/>
+        </corpus>
+        <frame>
+            <FE fgColor="FFFFFF" bgColor="FF0000" type="Core" abbrev="Agt" name="Avenger"/>
+            <FE fgColor="FFFFFF" bgColor="FF69B4" type="Peripheral" abbrev="Degr" name="Degree"/>
+            <FE fgColor="FFFFFF" bgColor="9400D3" type="Extra-Thematic" abbrev="Depict" name="Depictive"/>
+            <FE fgColor="FFFFFF" bgColor="7CCD73" type="Peripheral" abbrev="" name="Duration"/>
+            <FE fgColor="FFFFFF" bgColor="1E90FF" type="Core" abbrev="Injrd_prty" name="Injured_Party"/>
+            <FE fgColor="FFFFFF" bgColor="00008B" type="Core" abbrev="Injry" name="Injury"/>
+            <FE fgColor="FFFFFF" bgColor="808080" type="Peripheral" abbrev="Ins" name="Instrument"/>
+            <FE fgColor="FFFFFF" bgColor="FF00FF" type="Peripheral" abbrev="Manr" name="Manner"/>
+            <FE fgColor="FFFFFF" bgColor="9F79EE" type="Core" abbrev="Off" name="Offender"/>
+            <FE fgColor="FFFFFF" bgColor="008000" type="Peripheral" abbrev="Place" name="Place"/>
+            <FE fgColor="FFFFFF" bgColor="0000FF" type="Core" abbrev="Pun" name="Punishment"/>
+            <FE fgColor="FFFFFF" bgColor="800080" type="Peripheral" abbrev="Purp" name="Purpose"/>
+            <FE fgColor="FFFFFF" bgColor="A52A2A" type="Extra-Thematic" abbrev="Result" name="Result"/>
+            <FE fgColor="FFFFFF" bgColor="FFA500" type="Peripheral" abbrev="Time" name="Time"/>
+        </frame>
+    </header>
+    <definition>COD: take revenge on.</definition>
+    <lexeme order="1" headword="true" breakBefore="false" POS="V" name="get"/>
+    <lexeme order="2" headword="false" breakBefore="true" POS="ADV" name="back"/>
+    <valences>
+        <FERealization total="6">
+            <FE name="Avenger"/>
+            <pattern total="2">
+                <valenceUnit GF="" PT="CNI" FE="Avenger"/>
+                <annoSet ID="2135929"/>
+                <annoSet ID="2136287"/>
+            </pattern>
+            <pattern total="4">
+                <valenceUnit GF="Ext" PT="NP" FE="Avenger"/>
+                <annoSet ID="2135721"/>
+                <annoSet ID="2135723"/>
+                <annoSet ID="2136291"/>
+                <annoSet ID="2136293"/>
+            </pattern>
+        </FERealization>
+        <FERealization total="6">
+            <FE name="Injury"/>
+            <pattern total="4">
+                <valenceUnit GF="" PT="DNI" FE="Injury"/>
+                <annoSet ID="2135721"/>
+                <annoSet ID="2135723"/>
+                <annoSet ID="2136287"/>
+                <annoSet ID="2136293"/>
+            </pattern>
+            <pattern total="2">
+                <valenceUnit GF="Dep" PT="PP[for]" FE="Injury"/>
+                <annoSet ID="2135929"/>
+                <annoSet ID="2136291"/>
+            </pattern>
+        </FERealization>
+        <FERealization total="1">
+            <FE name="Manner"/>
+            <pattern total="1">
+                <valenceUnit GF="Dep" PT="PP[in]" FE="Manner"/>
+                <annoSet ID="2135723"/>
+            </pattern>
+        </FERealization>
+        <FERealization total="6">
+            <FE name="Offender"/>
+            <pattern total="6">
+                <valenceUnit GF="Dep" PT="PP[at]" FE="Offender"/>
+                <annoSet ID="2135721"/>
+                <annoSet ID="2135723"/>
+                <annoSet ID="2135929"/>
+                <annoSet ID="2136287"/>
+                <annoSet ID="2136291"/>
+                <annoSet ID="2136293"/>
+            </pattern>
+        </FERealization>
+        <FERealization total="6">
+            <FE name="Punishment"/>
+            <pattern total="6">
+                <valenceUnit GF="" PT="INI" FE="Punishment"/>
+                <annoSet ID="2135721"/>
+                <annoSet ID="2135723"/>
+                <annoSet ID="2135929"/>
+                <annoSet ID="2136287"/>
+                <annoSet ID="2136291"/>
+                <annoSet ID="2136293"/>
+            </pattern>
+        </FERealization>
+        <FEGroupRealization total="1">
+            <FE name="Avenger"/>
+            <FE name="Injury"/>
+            <FE name="Manner"/>
+            <FE name="Offender"/>
+            <FE name="Punishment"/>
+            <pattern total="1">
+                <valenceUnit GF="Ext" PT="NP" FE="Avenger"/>
+                <valenceUnit GF="" PT="DNI" FE="Injury"/>
+                <valenceUnit GF="Dep" PT="PP[in]" FE="Manner"/>
+                <valenceUnit GF="Dep" PT="PP[at]" FE="Offender"/>
+                <valenceUnit GF="" PT="INI" FE="Punishment"/>
+                <annoSet ID="2135723"/>
+            </pattern>
+        </FEGroupRealization>
+        <FEGroupRealization total="5">
+            <FE name="Avenger"/>
+            <FE name="Injury"/>
+            <FE name="Offender"/>
+            <FE name="Punishment"/>
+            <pattern total="1">
+                <valenceUnit GF="" PT="CNI" FE="Avenger"/>
+                <valenceUnit GF="" PT="DNI" FE="Injury"/>
+                <valenceUnit GF="Dep" PT="PP[at]" FE="Offender"/>
+                <valenceUnit GF="" PT="INI" FE="Punishment"/>
+                <annoSet ID="2136287"/>
+            </pattern>
+            <pattern total="1">
+                <valenceUnit GF="" PT="CNI" FE="Avenger"/>
+                <valenceUnit GF="Dep" PT="PP[for]" FE="Injury"/>
+                <valenceUnit GF="Dep" PT="PP[at]" FE="Offender"/>
+                <valenceUnit GF="" PT="INI" FE="Punishment"/>
+                <annoSet ID="2135929"/>
+            </pattern>
+            <pattern total="2">
+                <valenceUnit GF="Ext" PT="NP" FE="Avenger"/>
+                <valenceUnit GF="" PT="DNI" FE="Injury"/>
+                <valenceUnit GF="Dep" PT="PP[at]" FE="Offender"/>
+                <valenceUnit GF="" PT="INI" FE="Punishment"/>
+                <annoSet ID="2135721"/>
+                <annoSet ID="2136293"/>
+            </pattern>
+            <pattern total="1">
+                <valenceUnit GF="Ext" PT="NP" FE="Avenger"/>
+                <valenceUnit GF="Dep" PT="PP[for]" FE="Injury"/>
+                <valenceUnit GF="Dep" PT="PP[at]" FE="Offender"/>
+                <valenceUnit GF="" PT="INI" FE="Punishment"/>
+                <annoSet ID="2136291"/>
+            </pattern>
+        </FEGroupRealization>
+    </valences>
+    <subCorpus name="02-T-Wback-Wat-(1)">
+        <sentence corpID="111" docID="421" sentNo="3" paragNo="534" aPos="106462908" ID="1343859">
+            <text>One day I 'll get back at you , Jake MacKay ! &quot;</text>
+            <annotationSet cDate="09/27/2005 06:23:07 PDT Tue" status="UNANN" ID="2135720">
+                <layer rank="1" name="PENN">
+                    <label end="2" start="0" name="cd"/>
+                    <label end="6" start="4" name="nn"/>
+                    <label end="8" start="8" name="PP"/>
+                    <label end="12" start="10" name="md"/>
+                    <label end="16" start="14" name="VV"/>
+                    <label end="21" start="18" name="rb"/>
+                    <label end="24" start="23" name="in"/>
+                    <label end="28" start="26" name="PP"/>
+                    <label end="30" start="30" name=","/>
+                    <label end="35" start="32" name="NP"/>
+                    <label end="42" start="37" name="NP"/>
+                    <label end="44" start="44" name="sent"/>
+                </layer>
+                <layer rank="1" name="NER"/>
+                <layer rank="1" name="WSL"/>
+            </annotationSet>
+            <annotationSet cDate="09/27/2005 06:23:07 PDT Tue" status="AUTO_EDITED" ID="2135721">
+                <layer rank="1" name="Target">
+                    <label cBy="618" end="16" start="14" name="Target"/>
+                    <label cBy="618" end="21" start="18" name="Target"/>
+                </layer>
+                <layer rank="1" name="FE">
+                    <label cBy="618" feID="3009" end="8" start="8" name="Avenger"/>
+                    <label cBy="618" feID="3012" end="28" start="23" name="Offender"/>
+                    <label cBy="618" feID="3018" itype="DNI" name="Injury"/>
+                    <label cBy="618" feID="3015" itype="INI" name="Punishment"/>
+                </layer>
+                <layer rank="1" name="GF">
+                    <label end="8" start="8" name="Ext"/>
+                    <label end="28" start="23" name="Dep"/>
+                </layer>
+                <layer rank="1" name="PT">
+                    <label end="8" start="8" name="NP"/>
+                    <label end="28" start="23" name="PP"/>
+                </layer>
+                <layer rank="1" name="Other"/>
+                <layer rank="1" name="Sent"/>
+                <layer rank="1" name="Verb"/>
+            </annotationSet>
+        </sentence>
+        <sentence corpID="111" docID="421" sentNo="2" paragNo="499" aPos="77882479" ID="1343860">
+            <text>He could get back at them in some commando-style way .</text>
+            <annotationSet cDate="09/27/2005 06:23:11 PDT Tue" status="UNANN" ID="2135722">
+                <layer rank="1" name="PENN">
+                    <label end="1" start="0" name="PP"/>
+                    <label end="7" start="3" name="md"/>
+                    <label end="11" start="9" name="VV"/>
+                    <label end="16" start="13" name="rb"/>
+                    <label end="19" start="18" name="in"/>
+                    <label end="24" start="21" name="PP"/>
+                    <label end="27" start="26" name="in"/>
+                    <label end="32" start="29" name="dt"/>
+                    <label end="47" start="34" name="nn"/>
+                    <label end="51" start="49" name="nn"/>
+                    <label end="53" start="53" name="sent"/>
+                </layer>
+                <layer rank="1" name="NER"/>
+                <layer rank="1" name="WSL"/>
+            </annotationSet>
+            <annotationSet cDate="09/27/2005 06:23:11 PDT Tue" status="AUTO_EDITED" ID="2135723">
+                <layer rank="1" name="Target">
+                    <label cBy="618" end="11" start="9" name="Target"/>
+                    <label cBy="618" end="16" start="13" name="Target"/>
+                </layer>
+                <layer rank="1" name="FE">
+                    <label cBy="618" feID="3009" end="1" start="0" name="Avenger"/>
+                    <label cBy="618" feID="3012" end="24" start="18" name="Offender"/>
+                    <label cBy="618" feID="3014" end="51" start="26" name="Manner"/>
+                    <label cBy="618" feID="3018" itype="DNI" name="Injury"/>
+                    <label cBy="618" feID="3015" itype="INI" name="Punishment"/>
+                </layer>
+                <layer rank="1" name="GF">
+                    <label end="1" start="0" name="Ext"/>
+                    <label end="24" start="18" name="Dep"/>
+                    <label end="51" start="26" name="Dep"/>
+                </layer>
+                <layer rank="1" name="PT">
+                    <label end="1" start="0" name="NP"/>
+                    <label end="24" start="18" name="PP"/>
+                    <label end="51" start="26" name="PP"/>
+                </layer>
+                <layer rank="1" name="Other"/>
+                <layer rank="1" name="Sent"/>
+                <layer rank="1" name="Verb"/>
+            </annotationSet>
+        </sentence>
+    </subCorpus>
+    <subCorpus name="other-matched-(1)"/>
+    <subCorpus name="other-unmatched-(1)"/>
+    <subCorpus name="02-T-Wback-Wat-(3)">
+        <sentence corpID="111" docID="421" sentNo="3" paragNo="205" aPos="101707570" ID="1343963">
+            <text>Maybe it 's a ploy to get back at the people TSB calls ` Rich Bastards &quot; for having credit cards .</text>
+            <annotationSet cDate="09/28/2005 06:54:43 PDT Wed" status="UNANN" ID="2135928">
+                <layer rank="1" name="PENN">
+                    <label end="4" start="0" name="rb"/>
+                    <label end="7" start="6" name="PP"/>
+                    <label end="10" start="9" name="VBZ"/>
+                    <label end="12" start="12" name="dt"/>
+                    <label end="17" start="14" name="nn"/>
+                    <label end="20" start="19" name="to"/>
+                    <label end="24" start="22" name="VV"/>
+                    <label end="29" start="26" name="rp"/>
+                    <label end="32" start="31" name="in"/>
+                    <label end="36" start="34" name="dt"/>
+                    <label end="43" start="38" name="nns"/>
+                    <label end="47" start="45" name="NP"/>
+                    <label end="53" start="49" name="VVZ"/>
+                    <label end="60" start="57" name="jj"/>
+                    <label end="69" start="62" name="nns"/>
+                    <label end="75" start="73" name="in"/>
+                    <label end="82" start="77" name="VHG"/>
+                    <label end="89" start="84" name="nn"/>
+                    <label end="95" start="91" name="nns"/>
+                    <label end="97" start="97" name="sent"/>
+                </layer>
+                <layer rank="1" name="NER"/>
+                <layer rank="1" name="WSL"/>
+            </annotationSet>
+            <annotationSet cDate="09/28/2005 06:54:43 PDT Wed" status="AUTO_EDITED" ID="2135929">
+                <layer rank="1" name="Target">
+                    <label cBy="618" end="24" start="22" name="Target"/>
+                    <label cBy="618" end="29" start="26" name="Target"/>
+                </layer>
+                <layer rank="1" name="FE">
+                    <label cBy="618" feID="3009" itype="CNI" name="Avenger"/>
+                    <label cBy="618" feID="3012" end="71" start="31" name="Offender"/>
+                    <label cBy="618" feID="3018" end="95" start="73" name="Injury"/>
+                    <label cBy="618" feID="3015" itype="INI" name="Punishment"/>
+                </layer>
+                <layer rank="1" name="GF">
+                    <label end="71" start="31" name="Dep"/>
+                    <label end="95" start="73" name="Dep"/>
+                </layer>
+                <layer rank="1" name="PT">
+                    <label end="71" start="31" name="PP"/>
+                    <label end="95" start="73" name="PP"/>
+                </layer>
+                <layer rank="1" name="Other"/>
+                <layer rank="1" name="Sent"/>
+                <layer rank="1" name="Verb"/>
+            </annotationSet>
+        </sentence>
+    </subCorpus>
+    <subCorpus name="other-matched-(3)"/>
+    <subCorpus name="other-unmatched-(3)"/>
+    <subCorpus name="01-T-Wback-Wat-(5)">
+        <sentence corpID="113" docID="13819" sentNo="1" paragNo="11" aPos="5912776" ID="1344142">
+            <text>`` When I saw the draw I was thinking obviously this is a good opportunity to get back at him .</text>
+            <annotationSet cDate="09/28/2005 07:43:01 PDT Wed" status="UNANN" ID="2136286">
+                <layer rank="1" name="PENN">
+                    <label end="1" start="0" name="``"/>
+                    <label end="6" start="3" name="wrb"/>
+                    <label end="8" start="8" name="PP"/>
+                    <label end="12" start="10" name="VVD"/>
+                    <label end="16" start="14" name="dt"/>
+                    <label end="21" start="18" name="nn"/>
+                    <label end="23" start="23" name="PP"/>
+                    <label end="27" start="25" name="VBD"/>
+                    <label end="36" start="29" name="VVG"/>
+                    <label end="46" start="38" name="rb"/>
+                    <label end="51" start="48" name="dt"/>
+                    <label end="54" start="53" name="VBZ"/>
+                    <label end="56" start="56" name="dt"/>
+                    <label end="61" start="58" name="jj"/>
+                    <label end="73" start="63" name="nn"/>
+                    <label end="76" start="75" name="to"/>
+                    <label end="80" start="78" name="VV"/>
+                    <label end="85" start="82" name="rb"/>
+                    <label end="88" start="87" name="in"/>
+                    <label end="92" start="90" name="PP"/>
+                    <label end="94" start="94" name="sent"/>
+                </layer>
+                <layer rank="1" name="NER"/>
+                <layer rank="1" name="WSL"/>
+            </annotationSet>
+            <annotationSet cDate="09/28/2005 07:43:01 PDT Wed" status="AUTO_EDITED" ID="2136287">
+                <layer rank="1" name="Target">
+                    <label cBy="618" end="80" start="78" name="Target"/>
+                    <label cBy="618" end="85" start="82" name="Target"/>
+                </layer>
+                <layer rank="1" name="FE">
+                    <label cBy="618" feID="3012" end="92" start="87" name="Offender"/>
+                    <label cBy="618" feID="3018" itype="DNI" name="Injury"/>
+                    <label cBy="618" feID="3009" itype="CNI" name="Avenger"/>
+                    <label cBy="618" feID="3015" itype="INI" name="Punishment"/>
+                </layer>
+                <layer rank="1" name="GF">
+                    <label end="92" start="87" name="Dep"/>
+                </layer>
+                <layer rank="1" name="PT">
+                    <label end="92" start="87" name="PP"/>
+                </layer>
+                <layer rank="1" name="Other"/>
+                <layer rank="1" name="Sent"/>
+                <layer rank="1" name="Verb"/>
+            </annotationSet>
+        </sentence>
+        <sentence corpID="113" docID="13821" sentNo="1" paragNo="7" aPos="104182272" ID="1344144">
+            <text>Harris testified earlier that he lied in sworn statements before the trial and said Joseph shot all four victims because he wanted to get back at Joseph for an unpaid debt .</text>
+            <annotationSet cDate="09/28/2005 07:43:02 PDT Wed" status="UNANN" ID="2136290">
+                <layer rank="1" name="PENN">
+                    <label end="5" start="0" name="NP"/>
+                    <label end="15" start="7" name="VVD"/>
+                    <label end="23" start="17" name="rbr"/>
+                    <label end="28" start="25" name="in"/>
+                    <label end="31" start="30" name="PP"/>
+                    <label end="36" start="33" name="VVD"/>
+                    <label end="39" start="38" name="in"/>
+                    <label end="45" start="41" name="jj"/>
+                    <label end="56" start="47" name="nns"/>
+                    <label end="63" start="58" name="in"/>
+                    <label end="67" start="65" name="dt"/>
+                    <label end="73" start="69" name="nn"/>
+                    <label end="77" start="75" name="cc"/>
+                    <label end="82" start="79" name="VVD"/>
+                    <label end="89" start="84" name="NP"/>
+                    <label end="94" start="91" name="VVD"/>
+                    <label end="98" start="96" name="dt"/>
+                    <label end="103" start="100" name="cd"/>
+                    <label end="111" start="105" name="nns"/>
+                    <label end="119" start="113" name="in"/>
+                    <label end="122" start="121" name="PP"/>
+                    <label end="129" start="124" name="VVD"/>
+                    <label end="132" start="131" name="to"/>
+                    <label end="136" start="134" name="VV"/>
+                    <label end="141" start="138" name="rp"/>
+                    <label end="144" start="143" name="in"/>
+                    <label end="151" start="146" name="NP"/>
+                    <label end="155" start="153" name="in"/>
+                    <label end="158" start="157" name="dt"/>
+                    <label end="165" start="160" name="jj"/>
+                    <label end="170" start="167" name="nn"/>
+                    <label end="172" start="172" name="sent"/>
+                </layer>
+                <layer rank="1" name="NER"/>
+                <layer rank="1" name="WSL"/>
+            </annotationSet>
+            <annotationSet cDate="09/28/2005 07:43:02 PDT Wed" status="AUTO_EDITED" ID="2136291">
+                <layer rank="1" name="Target">
+                    <label cBy="618" end="136" start="134" name="Target"/>
+                    <label cBy="618" end="141" start="138" name="Target"/>
+                </layer>
+                <layer rank="1" name="FE">
+                    <label cBy="618" feID="3009" end="122" start="121" name="Avenger"/>
+                    <label cBy="618" feID="3012" end="151" start="143" name="Offender"/>
+                    <label cBy="618" feID="3018" end="170" start="153" name="Injury"/>
+                    <label cBy="618" feID="3015" itype="INI" name="Punishment"/>
+                </layer>
+                <layer rank="1" name="GF">
+                    <label end="122" start="121" name="Ext"/>
+                    <label end="151" start="143" name="Dep"/>
+                    <label end="170" start="153" name="Dep"/>
+                </layer>
+                <layer rank="1" name="PT">
+                    <label end="122" start="121" name="NP"/>
+                    <label end="151" start="143" name="PP"/>
+                    <label end="170" start="153" name="PP"/>
+                </layer>
+                <layer rank="1" name="Other"/>
+                <layer rank="1" name="Sent"/>
+                <layer rank="1" name="Verb"/>
+            </annotationSet>
+        </sentence>
+        <sentence corpID="113" docID="13822" sentNo="1" paragNo="12" aPos="4878265" ID="1344145">
+            <text>`` They took their first two opportunities , but I thought we fought very well to get back at them , '' Murray said .</text>
+            <annotationSet cDate="09/28/2005 07:43:02 PDT Wed" status="UNANN" ID="2136292">
+                <layer rank="1" name="PENN">
+                    <label end="1" start="0" name="``"/>
+                    <label end="6" start="3" name="PP"/>
+                    <label end="11" start="8" name="VVD"/>
+                    <label end="17" start="13" name="PP$"/>
+                    <label end="23" start="19" name="jj"/>
+                    <label end="27" start="25" name="cd"/>
+                    <label end="41" start="29" name="nns"/>
+                    <label end="43" start="43" name=","/>
+                    <label end="47" start="45" name="cc"/>
+                    <label end="49" start="49" name="PP"/>
+                    <label end="57" start="51" name="VVD"/>
+                    <label end="60" start="59" name="PP"/>
+                    <label end="67" start="62" name="VVD"/>
+                    <label end="72" start="69" name="rb"/>
+                    <label end="77" start="74" name="rb"/>
+                    <label end="80" start="79" name="to"/>
+                    <label end="84" start="82" name="VV"/>
+                    <label end="89" start="86" name="rb"/>
+                    <label end="92" start="91" name="in"/>
+                    <label end="97" start="94" name="PP"/>
+                    <label end="99" start="99" name=","/>
+                    <label end="102" start="101" name="''"/>
+                    <label end="109" start="104" name="NP"/>
+                    <label end="114" start="111" name="VVD"/>
+                    <label end="116" start="116" name="sent"/>
+                </layer>
+                <layer rank="1" name="NER"/>
+                <layer rank="1" name="WSL"/>
+            </annotationSet>
+            <annotationSet cDate="09/28/2005 07:43:02 PDT Wed" status="AUTO_EDITED" ID="2136293">
+                <layer rank="1" name="Target">
+                    <label cBy="618" end="84" start="82" name="Target"/>
+                    <label cBy="618" end="89" start="86" name="Target"/>
+                </layer>
+                <layer rank="1" name="FE">
+                    <label cBy="618" feID="3009" end="49" start="49" name="Avenger"/>
+                    <label cBy="618" feID="3012" end="97" start="91" name="Offender"/>
+                    <label cBy="618" feID="3018" itype="DNI" name="Injury"/>
+                    <label cBy="618" feID="3015" itype="INI" name="Punishment"/>
+                </layer>
+                <layer rank="1" name="GF">
+                    <label end="49" start="49" name="Ext"/>
+                    <label end="97" start="91" name="Dep"/>
+                </layer>
+                <layer rank="1" name="PT">
+                    <label end="49" start="49" name="NP"/>
+                    <label end="97" start="91" name="PP"/>
+                </layer>
+                <layer rank="1" name="Other"/>
+                <layer rank="1" name="Sent"/>
+                <layer rank="1" name="Verb"/>
+            </annotationSet>
+        </sentence>
+    </subCorpus>
+</lexUnit>

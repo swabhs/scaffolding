@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<?xml-stylesheet type="text/xsl" href="luIndex.xsl"?>
+<luIndex xsi:schemaLocation="schema/luIndex.xsd" xmlns="http://framenet.icsi.berkeley.edu" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+    <legend>
+        <statusType description="LU defined and sentences ready for annotation" name="New"/>
+        <statusType description="LU defined in frame, but sentences not yet extracted from corpus" name="Created"/>
+        <statusType description="LexUnit was created during FrameNet I and has some annotation" name="FN1_Sent"/>
+        <statusType description="LU was defined in frame during FrameNet I, but contains no sentences" name="FN1_NoSent"/>
+        <statusType description="LexUnit's SubCorpora have been defined but not yet created" name="SC_Defined"/>
+        <statusType description="Not available for annotation due to problems with definition of frame or frame elements" name="Problem"/>
+        <statusType description="LexUnit is currently being annotated" name="In_Use"/>
+        <statusType description="Regular annotation completed during FrameNet II" name="Finished_Initial"/>
+        <statusType description="Annotation and final checking completed during FrameNet II" name="Finished_Checked"/>
+        <statusType description="LexUnit has been annotated only for X-Gov labels" name="Finished_X-Gov"/>
+        <statusType description="Not enough examples to annotate completely" name="Insufficient_Attestations"/>
+        <statusType description="Status could not be determined" name="Unknown"/>
+        <statusType description="LU created only for software testing" name="Test"/>
+        <statusType description="Subcorporation rules have been defined, but not run" name="Rules_Defined"/>
+        <statusType description="This LU is left unannotated because it is so similar to others in this frame" name="BTDT"/>
+        <statusType description="An LU whose status was Needs_SCs has had more" name="Add_Annotation"/>
+        <statusType description="LexUnit needs more sentences in new SCs" name="Needs_SCs"/>
+        <statusType description="ProcessRules has run on the LU and some FEs have been pre-marked on the basis of the rules" name="Pre-Marked"/>
+    </legend>
+    <lu hasAnnotation="true" frameID="122" frameName="Kidnapping" status="Finished_Initial" name="abduct.v" ID="2457"/>
+    <lu hasAnnotation="true" frameID="122" frameName="Kidnapping" status="Finished_Initial" name="abducted.a" ID="2470"/>
+    <lu hasAnnotation="true" frameID="122" frameName="Kidnapping" status="Finished_Initial" name="abduction.n" ID="2462"/>
+    <lu hasAnnotation="true" frameID="122" frameName="Kidnapping" status="Finished_Initial" name="abductor.n" ID="2467"/>
+    <lu hasAnnotation="true" frameID="122" frameName="Kidnapping" status="Finished_Initial" name="kidnap.v" ID="2456"/>
+    <lu hasAnnotation="true" frameID="122" frameName="Kidnapping" status="Finished_Initial" name="kidnapped.a" ID="2469"/>
+    <lu hasAnnotation="true" frameID="122" frameName="Kidnapping" status="Finished_Initial" name="kidnapper.n" ID="2466"/>
+    <lu hasAnnotation="true" frameID="122" frameName="Kidnapping" status="Finished_Initial" name="kidnapping.n" ID="2461"/>
+    <lu hasAnnotation="true" frameID="122" frameName="Kidnapping" status="Insufficient_Attestations" name="nab.v" ID="2459"/>
+    <lu hasAnnotation="true" frameID="122" frameName="Kidnapping" status="Insufficient_Attestations" name="shanghai.v" ID="2458"/>
+    <lu hasAnnotation="true" frameID="122" frameName="Kidnapping" status="Finished_Initial" name="snatch.v" ID="2460"/>
+    <lu hasAnnotation="true" frameID="122" frameName="Kidnapping" status="Needs_SCs" name="snatcher.n" ID="2468"/>
+</luIndex>

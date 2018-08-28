@@ -1,0 +1,69 @@
+# Library dependencies for the python code.  You need to install these with
+# `pip install -r requirements.txt` before you can run this.
+
+#### ESSENTIAL LIBRARIES FOR MAIN FUNCTIONALITY ####
+
+# In order to use allennlp you will also need to install pytorch. Currently, the version depends on
+# your OS. Please visit http://pytorch.org/ and follow the instructions for installation.
+
+# Parameter parsing.
+pyhocon==0.3.35
+
+# Type checking for python
+typing
+
+# Adds an @overrides decorator for better documentation and error checking when using subclasses.
+overrides
+
+# Used by some old code.  We moved away from it because it's too slow, but some old code still
+# imports this.
+nltk
+
+# Mainly used for the faster tokenizer.
+spacy>=2.0,<2.1
+
+# Used by span prediction models.
+numpy
+
+# Used in coreference resolution evaluation metrics.
+scipy
+scikit-learn
+
+# Training visualisation using tensorboard.
+tensorboard==1.0.0a6
+
+# Required by torch.utils.ffi
+cffi==1.11.2
+
+# aws commandline tools for running on Docker remotely.
+awscli>=1.11.91
+
+# REST interface for models
+flask==0.12.1
+flask-cors==3.0.3
+
+# Talk to postgres demo database
+psycopg2
+psycopg2-binary
+
+#### LIBRARIES USED IN SCRIPTS ####
+# argument parsing in for data cleaning scripts
+argparse
+
+# Used for downloading datasets over HTTP
+requests>=2.18
+
+# progress bars in data cleaning scripts
+tqdm
+
+# In SQuAD eval script, we use this to see if we likely have some tokenization problem.
+editdistance
+
+# Tutorial notebooks
+jupyter
+
+# For pretrained model weights
+h5py
+
+# For timezone utilities
+pytz==2017.3

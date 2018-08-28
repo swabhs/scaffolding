@@ -11,25 +11,25 @@ Due to changes in the API, we recommended installing directly via steps below (a
 2.  Create a Conda environment with Python 3.6
 
     ```
-    conda create -n sesame python=3.6
+    conda create -n scaffold python=3.6
     ```
 
 3.  Activate the Conda environment.  (You will need to activate the Conda environment in each terminal in which you want to use AllenNLP.
 
     ```
-    source activate sesame
+    source activate scaffold
     ```
 
-4. Install Open-Sesame v2.0 via AllenNLP in your environment
+4. Install in your environment
 
     ```
-    git clone https://github.com/swabhs/open-sesame-deeper.git
+    git clone https://github.com/swabhs/scaffolding.git
     ```
 
 5. Change your directory to where you cloned the files:
 
     ```
-    cd open-sesame-deeper/
+    cd scaffolding/
     ```
 
 6.  Install the required dependencies.
@@ -45,8 +45,8 @@ Conda-based installation results in [slower rutime](https://github.com/pytorch/p
     pip install http://download.pytorch.org/whl/cu80/torch-0.3.0.post4-cp36-cp36m-linux_x86_64.whl
     ```
 
-
 ## Data
+
 Download [FN data](https://drive.google.com/file/d/15n3M4AmURGdGqnNAjn352buUTV5S-fVI/view?usp=sharing) and place it under a `data` directory under the root directory.
 
 ## Testing
@@ -67,16 +67,25 @@ and then run evaluation as above.
 ## Training
 
 For scaffolds, use `$command=train_m` and for baselines, `$command=train`.
-For PropBank SRL scaffold, use the `pbscaf` branch, and `$config=`
 ```
-python -m allennlp.run $command training_config/$config \
-    --serialization-dir log
+python -m allennlp.run $command training_config/$config --serialization-dir log
 ```
 
 ### Acknowledgment
 
+Paper coming soon on ACL Anthology / ArXiv.
+
+```
+@inproceedings{swayamdipta:2018,
+    author      = {Swabha Swayamdipta and Sam Thomson and Kenton Lee and Luke Zettlemoyer and Chris Dyer and Noah A. Smith},
+    title       = {Syntactic Scaffolding for Semantic Structures},
+    booktitle   = {Proc. of EMNLP},
+    year        = {2018}
+}
+```
+
 
 ### Pre-trained models
 
-Download
+Coming Soon.
 

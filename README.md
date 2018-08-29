@@ -45,11 +45,20 @@ Conda-based installation results in [slower rutime](https://github.com/pytorch/p
     pip install http://download.pytorch.org/whl/cu80/torch-0.3.0.post4-cp36-cp36m-linux_x86_64.whl
     ```
 
-## Data
+## Step 1: Get Data
 
-Download [FN data](https://drive.google.com/file/d/15n3M4AmURGdGqnNAjn352buUTV5S-fVI/view?usp=sharing) and place it under a `data` directory under the root directory.
+Download [FN data](https://drive.google.com/file/d/15n3M4AmURGdGqnNAjn352buUTV5S-fVI/view?usp=sharing) and place it under a `data/` directory under the root directory.
 
-## Testing
+## Step 2: Get Pre-trained Models
+
+[Frame-SRL baseline](https://drive.google.com/open?id=1f7ZLOBc65Y74hPQlYY8mGVHkCiN14dwH)
+[Frame-SRL scaffold with common non-terminals](https://drive.google.com/open?id=1V1-U70U-wDKaG3zuONQN3eB77jjS3FSd)
+
+[PropBank SRL baseline]()
+[PropBank SRL scaffold with common non-terminals]()
+
+
+## Step 3: Test
 
 ```
 python -m allennlp.run evaluate \
@@ -71,7 +80,7 @@ For scaffolds, use `$command=train_m` and for baselines, `$command=train`.
 python -m allennlp.run $command training_config/$config --serialization-dir log
 ```
 
-### Acknowledgment
+## Acknowledgment
 
 Paper coming soon on ACL Anthology / ArXiv.
 
@@ -83,9 +92,4 @@ Paper coming soon on ACL Anthology / ArXiv.
     year        = {2018}
 }
 ```
-
-
-### Pre-trained models
-
-Coming Soon.
 

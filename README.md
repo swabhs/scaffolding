@@ -1,6 +1,6 @@
 # Scaffolding: Syntactic Scaffolds for Semantic Structures
 
-A repository based on the EMNLP 2018 [paper](http://arxiv.org/TODO) for Frame-Semantic and PropBank Semantic Role Labeling with Syntactic Scaffolding. Code for coreference with a syntactic scaffold coming soon.
+A repository based on the EMNLP 2018 [paper](https://arxiv.org/abs/1808.10485) for Frame-Semantic and PropBank Semantic Role Labeling with Syntactic Scaffolding. Code for coreference with a syntactic scaffold coming soon.
 
 ## Installation
 This repository was built on an earlier version of [AllenNLP](https://github.com/allenai/allennlp).
@@ -69,6 +69,7 @@ python -m allennlp.run evaluate \
     --cuda-device 0
 ```
 
+Coming Soon: 
 For the syntactic scaffold model for PropBank SRL, use the `pbscaf` branch:
 ```
 git checkout pbscaf

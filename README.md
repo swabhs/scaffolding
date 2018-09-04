@@ -92,6 +92,7 @@ Paper coming soon on ACL Anthology / ArXiv.
     author      = {Swabha Swayamdipta and Sam Thomson and Kenton Lee and Luke Zettlemoyer and Chris Dyer and Noah A. Smith},
     title       = {Syntactic Scaffolding for Semantic Structures},
     booktitle   = {Proc. of EMNLP},
+    url         = {https://arxiv.org/abs/1808.10485},
     year        = {2018}
 }
 ```

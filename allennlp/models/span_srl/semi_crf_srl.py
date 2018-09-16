@@ -62,7 +62,7 @@ class SemiCrfSemanticRoleLabeler(Model):
                  distance_feature_size: int,
                  embedding_dropout: float = 0.2,
                  label_namespace: str = "labels",
-                 fast_mode: bool = False,
+                 fast_mode: bool = True,
                  loss_type: str = "logloss",
                  initializer: InitializerApplicator = InitializerApplicator(),
                  regularizer: Optional[RegularizerApplicator] = None) -> None:
@@ -90,13 +90,13 @@ class SemiCrfSemanticRoleLabeler(Model):
         self.head_scorer = TimeDistributed(torch.nn.Linear(stacked_encoder.get_output_dim(), 1))
 
         self.num_classes = self.vocab.get_vocab_size(label_namespace)
-        self.not_a_span_tag = self.vocab.get_token_index("*", label_namespace)
-        self.outside_span_tag = self.vocab.get_token_index("O", label_namespace)
+        not_a_span_tag = self.vocab.get_token_index("*", label_namespace)
+        outside_span_tag = self.vocab.get_token_index("O", label_namespace)
         self.semi_crf = SemiMarkovConditionalRandomField(num_tags=self.num_classes,
                                                          max_span_width=max_span_width,
                                                          loss_type=loss_type,
-                                                         default_tag=self.not_a_span_tag,
-                                                         outside_span_tag=self.outside_span_tag)
+                                                         default_tag=not_a_span_tag,
+                                                         outside_span_tag=outside_span_tag)
 
         # Topmost MLP.
         self.tag_projection_layer = TimeDistributed(
@@ -119,6 +119,7 @@ class SemiCrfSemanticRoleLabeler(Model):
                 target_index: torch.LongTensor,
                 span_starts: torch.LongTensor,
                 span_ends: torch.LongTensor,
+                # span_mask: torch.LongTensor,
                 tags: torch.LongTensor = None) -> Dict[str, torch.Tensor]:
         # pylint: disable=arguments-differ
         """
@@ -222,44 +223,9 @@ class SemiCrfSemanticRoleLabeler(Model):
     @overrides
     def decode(self, output_dict: Dict[str, torch.Tensor]) -> Dict[str, torch.Tensor]:
         """
-        Convert predicted tag matrix into a sequence of tag string labels.
+        Not necessary for us.
         """
-        tag_matrices = output_dict["tags"]
-        sequence_lengths = util.get_lengths_from_binary_sequence_mask(output_dict["mask"]).data.tolist()
-        tag_matrix_list = tag_matrices.cpu().tolist()
-        # TODO(Swabha): add case for non-batched.
-
-        all_tag_sequences = []
-        for tag_matrix, sent_len in zip(tag_matrix_list, sequence_lengths):
-            tag_sequence = self.convert_spans_into_sequence_of_tags(tag_matrix, sent_len)
-            all_tag_sequences.append(tag_sequence)
-
-        output_dict["tags"] = all_tag_sequences
-        return output_dict
-
-    def convert_spans_into_sequence_of_tags(self,
-                                            tag_matrix: List[List[int]],
-                                            sentence_length: int) -> List[int]:
-        tag_sequence = [self.outside_span_tag for _ in range(sentence_length)]
-        end_idx = 0
-        for span_list in tag_matrix:
-            if end_idx > sentence_length:
-                break
-            diff = 0
-            assert len(span_list) == self.max_span_width
-            for span_tag in span_list:
-                if diff > end_idx:
-                    break
-                if span_tag == self.not_a_span_tag:
-                    continue
-                start_idx = end_idx - diff
-                for position in range(start_idx, end_idx+1):
-                    # Make sure that the current position is not already assigned.
-                    assert tag_sequence[position] == self.outside_span_tag
-                    tag_sequence[position] = span_tag
-                diff += 1
-            end_idx += 1
-        return tag_sequence
+        raise NotImplementedError
 
     def get_metrics(self, reset: bool = False):
         metric_dict = self.non_bio_span_metric.get_metric(reset=reset)
@@ -268,8 +234,8 @@ class SemiCrfSemanticRoleLabeler(Model):
         # During training, we only really care about the overall
         # metrics, so we filter for them here.
         # TODO(Mark): This is fragile and should be replaced with some verbosity level in Trainer.
-        # return {x: y for x, y in metric_dict.items() if "overall" in x}
-        return metric_dict
+        return {x: y for x, y in metric_dict.items() if "overall" in x}
+        # return metric_dict
 
     @classmethod
     def from_params(cls, vocab: Vocabulary, params: Params) -> 'SemiCrfSemanticRoleLabeler':
@@ -305,4 +271,3 @@ class SemiCrfSemanticRoleLabeler(Model):
                    fast_mode=fast_mode,
                    initializer=initializer,
                    regularizer=regularizer)
-

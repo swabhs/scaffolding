@@ -311,26 +311,25 @@ class Vocabulary:
     @classmethod
     def from_dataset(cls,
                      dataset,
+                     aux_dataset = None,
                      min_count: int = 1,
                      max_vocab_size: Union[int, Dict[str, int]] = None,
                      non_padded_namespaces: Sequence[str] = DEFAULT_NON_PADDED_NAMESPACES,
                      pretrained_files: Optional[Dict[str, str]] = None,
-                     only_include_pretrained_words: bool = False,
-                     dataset_aux=None) -> 'Vocabulary':
+                     only_include_pretrained_words: bool = False) -> 'Vocabulary':
         """
         Constructs a vocabulary given a :class:`.Dataset` and some parameters.  We count all of the
-        vocabulary items in the dataset, then pass those counts, and the other parameters, to
-        :func:`__init__`.  See that method for a description of what the other parameters do.
+        vocabulary items in the dataset (and auxiliary dataset, if present), then pass those counts,
+        and the other parameters, to :func:`__init__`.
+        See that method for a description of what the other parameters do.
         """
-        logger.info("Fitting token dictionary from dataset.")
+        logger.info("Fitting token dictionary from primary (and auxiliary) datasets.")
         namespace_token_counts: Dict[str, Dict[str, int]] = defaultdict(lambda: defaultdict(int))
         for instance in tqdm.tqdm(dataset.instances):
             instance.count_vocab_items(namespace_token_counts)
-
-        if dataset_aux is not None:
-            logger.info("Fitting token dictionary from auxillary dataset.")
-            for instance in tqdm.tqdm(dataset_aux.instances):
-                instance.count_vocab_items(namespace_token_counts)
+        if aux_dataset is not None:
+            for aux_instance in tqdm.tqdm(aux_dataset.instances):
+                aux_instance.count_vocab_items(namespace_token_counts)
 
         return Vocabulary(counter=namespace_token_counts,
                           min_count=min_count,
@@ -340,7 +339,7 @@ class Vocabulary:
                           only_include_pretrained_words=only_include_pretrained_words)
 
     @classmethod
-    def from_params(cls, params: Params, dataset=None, dataset_aux=None):
+    def from_params(cls, params: Params, dataset=None, aux_dataset=None):
         """
         There are two possible ways to build a vocabulary; from a
         pre-existing dataset, using :func:`Vocabulary.from_dataset`, or
@@ -352,6 +351,9 @@ class Vocabulary:
         ----------
         params: Params, required.
         dataset: Dataset, optional.
+            If ``params`` doesn't contain a ``vocabulary_directory`` key,
+            the ``Vocabulary`` can be built directly from a ``Dataset``.
+        aux_dataset: Dataset, optional.
             If ``params`` doesn't contain a ``vocabulary_directory`` key,
             the ``Vocabulary`` can be built directly from a ``Dataset``.
 
@@ -375,14 +377,14 @@ class Vocabulary:
         non_padded_namespaces = params.pop("non_padded_namespaces", DEFAULT_NON_PADDED_NAMESPACES)
         pretrained_files = params.pop("pretrained_files", {})
         only_include_pretrained_words = params.pop("only_include_pretrained_words", False)
-        params.assert_empty("Vocabulary - from dataset")
+        params.assert_empty("Vocabulary - from dataset (and auxiliary).")
         return Vocabulary.from_dataset(dataset=dataset,
+                                       aux_dataset=aux_dataset,
                                        min_count=min_count,
                                        max_vocab_size=max_vocab_size,
                                        non_padded_namespaces=non_padded_namespaces,
                                        pretrained_files=pretrained_files,
-                                       only_include_pretrained_words=only_include_pretrained_words,
-                                       dataset_aux=dataset_aux)
+                                       only_include_pretrained_words=only_include_pretrained_words)
 
     def add_token_to_namespace(self, token: str, namespace: str = 'tokens') -> int:
         """

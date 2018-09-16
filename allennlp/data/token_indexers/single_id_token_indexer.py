@@ -23,9 +23,10 @@ class SingleIdTokenIndexer(TokenIndexer[int]):
         vocabulary.
     """
     # pylint: disable=no-self-use
-    def __init__(self, namespace: str = 'tokens', lowercase_tokens: bool = False) -> None:
+    def __init__(self, namespace: str = 'tokens', lowercase_tokens: bool = False, no_counter: bool = False) -> None:
         self.namespace = namespace
         self.lowercase_tokens = lowercase_tokens
+        self.no_counter = no_counter
 
     @overrides
     def count_vocab_items(self, token: Token, counter: Dict[str, Dict[str, int]]):
@@ -35,7 +36,11 @@ class SingleIdTokenIndexer(TokenIndexer[int]):
             text = token.text
             if self.lowercase_tokens:
                 text = text.lower()
-            counter[self.namespace][text] += 1
+            if self.no_counter:
+                if text not in counter[self.namespace]:
+                    counter[self.namespace][text] += 1
+            else:
+                counter[self.namespace][text] += 1
 
     @overrides
     def token_to_indices(self, token: Token, vocabulary: Vocabulary) -> int:
@@ -69,5 +74,6 @@ class SingleIdTokenIndexer(TokenIndexer[int]):
     def from_params(cls, params: Params) -> 'SingleIdTokenIndexer':
         namespace = params.pop('namespace', 'tokens')
         lowercase_tokens = params.pop('lowercase_tokens', False)
+        no_counter = params.pop('no_counter', False)
         params.assert_empty(cls.__name__)
-        return cls(namespace=namespace, lowercase_tokens=lowercase_tokens)
+        return cls(namespace=namespace, lowercase_tokens=lowercase_tokens, no_counter=no_counter)

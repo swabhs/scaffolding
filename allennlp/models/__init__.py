@@ -14,6 +14,6 @@ from allennlp.models.coreference_resolution.coref import CoreferenceResolver
 from allennlp.models.semantic_role_labeler import SemanticRoleLabeler
 from allennlp.models.span_srl.semi_crf_srl import SemiCrfSemanticRoleLabeler
 from allennlp.models.span_srl.frame_semi_crf_srl import FrameSemanticRoleLabeler
-from allennlp.models.span_srl.scaffolding.constit_labeler import ConstitLabeler
-from allennlp.models.span_srl.propbank_scaffolded_span_srl import PropBankScaffoldSpanSrl
-from allennlp.models.span_srl.scaffolding.scaffolded_pb_srl import ScaffoldedPropBankSrl
+from allennlp.models.span_srl.constit_labeler import ConstitLabeler
+from allennlp.models.span_srl.scaffolding.scaffolded_frame_srl import ScaffoldedFrameSrl
+from allennlp.models.span_srl.scaffolding.scaffolded_pb_srl import ScaffoldedPropBankSRL

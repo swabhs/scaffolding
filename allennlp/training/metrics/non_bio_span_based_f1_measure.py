@@ -63,35 +63,11 @@ class NonBioSpanBasedF1Measure(Metric):
         self._false_positives: Dict[str, int] = defaultdict(int)
         self._false_negatives: Dict[str, int] = defaultdict(int)
 
-        # These will hold unlabeled span counts.
-        self._unlabeled_true_positives: int = 0
-        self._unlabeled_false_positives: int = 0
-        self._unlabeled_false_negatives: int = 0
-
-        # These will hold partial match counts.
-        self._partial_true_positives: int = 0
-        self._partial_false_positives: int = 0
-        self._partial_false_negatives: int = 0
-
-        # These will hold width-wise span counts.
-        self._width_tp: Dict[int, int] = defaultdict(int)
-        self._width_fp: Dict[int, int] = defaultdict(int)
-        self._width_fn: Dict[int, int] = defaultdict(int)
-
-        # These will hold width-wise span counts.
-        self._dist_tp: Dict[int, int] = defaultdict(int)
-        self._dist_fp: Dict[int, int] = defaultdict(int)
-        self._dist_fn: Dict[int, int] = defaultdict(int)
-
-        self._gold_spans: List[Set[Tuple[int, int, str]]] = []
-        self._predicted_spans: List[Set[Tuple[int, int, str]]] = []
-
     def __call__(self,
                  predictions: torch.Tensor,
                  gold_labels: torch.Tensor,
                  mask: Optional[torch.Tensor] = None,
-                 frames: List[str] = None,
-                 target_indices: torch.Tensor = None):
+                 frames: List[str] = None):
         """
         Parameters
         ----------
@@ -104,6 +80,13 @@ class NonBioSpanBasedF1Measure(Metric):
         mask: ``torch.Tensor``, optional (default = None).
             A masking tensor of shape (batch_size, sequence_length).
         """
+        def score(frame: str, frame_element: str):
+            # FN non-core FEs account for 0.5 only
+            if frame and self._ontology:
+                if frame_element not in self._ontology.core_frame_map[frame]:
+                    return 0.5
+            return 1.0
+
         if (gold_labels >= self.num_classes).any():
             raise ConfigurationError("A gold label passed to NonBioSpanBasedF1Measure contains an "
                                      "id >= {}, the number of classes.".format(self.num_classes))
@@ -112,7 +95,8 @@ class NonBioSpanBasedF1Measure(Metric):
             mask = ones_like(gold_labels)
 
         # Get the data from the Variables.
-        predictions, gold_labels, mask = self.unwrap_to_tensors(predictions, gold_labels, mask)
+        predictions, gold_labels, mask = self.unwrap_to_tensors(
+            predictions, gold_labels, mask)
 
         sequence_lengths = get_lengths_from_binary_sequence_mask(mask)
         argmax_predictions = predictions.float()
@@ -120,168 +104,37 @@ class NonBioSpanBasedF1Measure(Metric):
         # Iterate over timesteps in batch.
         batch_size = gold_labels.size(0)
         for i in range(batch_size):
-            gold_sequence = gold_labels[i, :]
-            predicted_sequence = argmax_predictions[i, :]
-
+            sequence_prediction = argmax_predictions[i, :]
+            sequence_gold_label = gold_labels[i, :]
             length = sequence_lengths[i]
+            frame = None
+            if frames:
+                frame = frames[i]
+
             if length == 0:
                 # It is possible to call this metric with sequences which are
                 # completely padded. These contribute nothing, so we skip these rows.
                 continue
-
-            gold_spans = self._extract_spans(gold_sequence[:length].tolist(), merge=True)
-            predicted_spans = self._extract_spans(predicted_sequence[:length].tolist(), merge=True)
-
-            self._gold_spans.append(gold_spans)
-            self._predicted_spans.append(predicted_spans)
-
-            frame = None
-            if frames is not None:
-                frame = frames[i]
+            prediction_spans = self._extract_spans(
+                sequence_prediction[:length].tolist(), merge=True)
+            gold_spans = self._extract_spans(
+                sequence_gold_label[:length].tolist(), merge=True)
 
             # FN is not to be evaluated for empty gold annotations.
-            if not gold_spans and frame:
+            if not gold_spans and frames:
                 continue
 
-            self._get_labeled_evaluation(gold_spans, predicted_spans, frame)
-            self._get_unlabeled_evaluation(gold_spans, predicted_spans, frame)
-            self._get_partial_match_evaluation(gold_spans, predicted_spans, frame)
-            self._get_width_wise_labeled_evaluation(gold_spans, predicted_spans, frame)
-
-            if target_indices is not None:
-                target_index = target_indices[i][0].data[0]
-                self._get_distance_wise_labeled_evaluation(gold_spans, predicted_spans, target_index, frame)
-
-    def _score(self, frame: str, frame_element: str):
-        # FN non-core FEs account for 0.5 only
-        if frame and self._ontology:
-            if frame_element not in self._ontology.core_frame_map[frame]:
-                return 0.5
-        return 1.0
-
-    def _get_labeled_evaluation(self, gold_spans, predicted_spans, frame=None):
-        gold_spans_copy = [span for span in gold_spans]
-        for span in predicted_spans:
-            label = span[2]
-            if span in gold_spans:
-                self._true_positives[label] += self._score(frame, label)
-                gold_spans_copy.remove(span)
-            else:
-                self._false_positives[label] += self._score(frame, label)
-        # These spans weren't predicted.
-        for span in gold_spans_copy:
-            label = span[2]
-            self._false_negatives[label] += self._score(frame, label)
-
-    def _get_unlabeled_evaluation(self, gold_spans, predicted_spans, frame=None):
-        unlabeled_gold_spans = [(span[0], span[1]) for span in gold_spans]
-
-        for span in predicted_spans:
-            label = span[2]
-            unlabeled_span = (span[0], span[1])
-            if unlabeled_span in unlabeled_gold_spans:
-                self._unlabeled_true_positives += self._score(frame, label)
-                unlabeled_gold_spans.remove(unlabeled_span)
-            else:
-                self._unlabeled_false_positives += self._score(frame, label)
-
-        # These spans weren't predicted.
-        for span in gold_spans:
-            label = span[2]
-            unlabeled_span = (span[0], span[1])
-            if unlabeled_span in unlabeled_gold_spans:
-                self._unlabeled_false_negatives += self._score(frame, label)
-
-    def _get_tokenwise_evaluation(self, gold_spans, predicted_spans, length, frame=None):
-        def get_seq(spans):
-            seq = ["-"] * length
-            for span in spans:
-                start, end, label = span
-                for i in range(start, end+1):
-                    seq[i] = label
-            return seq
-
-        gold_seq = get_seq(gold_spans)
-        pred_seq = get_seq(predicted_spans)
-
-        for pred_label, gold_label in zip(pred_seq, gold_seq):
-            if pred_label == gold_label == "-":
-                continue
-            elif pred_label == gold_label != "-":
-                self._partial_true_positives += self._score(frame, pred_label)
-            elif pred_label != gold_label and pred_label != "-" and gold_label != "-":
-                self._partial_false_negatives += self._score(frame, gold_label)
-                self._partial_false_positives += self._score(frame, pred_label)
-            elif pred_label == "-" and gold_label != "-":
-                self._partial_false_negatives += self._score(frame, gold_label)
-            elif gold_label == "-" and pred_label != "-":
-                self._partial_false_positives += self._score(frame, pred_label)
-            else:
-                print("unknown case for", pred_label, gold_label)
-                raise AttributeError
-
-    def _get_partial_match_evaluation(self, gold_spans, predicted_spans, frame=None):
-        gold_spans_dict = {span[2]: (span[0], span[1]) for span in gold_spans}
-        for span in predicted_spans:
-            start, end, label = span
-            if label not in gold_spans_dict:
-                self._partial_false_positives += self._score(frame, label)
-                continue
-            gstart, gend = gold_spans_dict[label]
-            prange = set(range(start, end+1))
-            grange = set(range(gstart, gend+1))
-            if prange.intersection(grange):
-                self._partial_true_positives += self._score(frame, label)
-                gold_spans_dict.pop(label)
-            else:
-                self._partial_false_positives += self._score(frame, label)
-        for glabel in gold_spans_dict:
-            self._partial_false_negatives += self._score(frame, glabel)
-
-    def _get_width_wise_labeled_evaluation(self, gold_spans, predicted_spans, frame=None):
-        def _get_bin(width):
-            # if width in [0, 1, 2, 3, 4, 5]:
-            #     return width
-            # elif 5 < width <= 10:
-            #     return 10
-            # elif 10 < width <= 15:
-            #     return 15
-            # elif 15 < width <= 25:
-            #     return 25
-            # elif 25 < width <= 40:
-            #     return 40
-            # else:
-            #     return 100
-            return width
-
-        gold_spans_copy = [span for span in gold_spans]
-        for span in predicted_spans:
-            label = span[2]
-            width_bin = _get_bin(span[1]-span[0])
-            if span in gold_spans:
-                self._width_tp[width_bin] += self._score(frame, label)
-                gold_spans_copy.remove(span)
-            else:
-                self._width_fp[width_bin] += self._score(frame, label)
-        # These spans weren't predicted.
-        for span in gold_spans_copy:
-            label = span[2]
-            width_bin = _get_bin(span[1]-span[0])
-            self._width_fn[width_bin] += self._score(frame, label)
-
-    def _get_distance_wise_labeled_evaluation(self, gold_spans, predicted_spans, target_index, frame=None):
-        gold_spans_copy = [span for span in gold_spans]
-        for span in predicted_spans:
-            label = span[2]
-            if span in gold_spans_copy:
-                self._dist_tp[abs(span[1]-target_index)] += self._score(frame, label)
-                gold_spans_copy.remove(span)
-            else:
-                self._dist_fp[abs(span[1]-target_index)] += self._score(frame, label)
-        # These spans weren't predicted.
-        for span in gold_spans_copy:
-            label = span[2]
-            self._dist_fn[abs(span[1]-target_index)] += self._score(frame, label)
+            for span in prediction_spans:
+                label = span[2]
+                if span in gold_spans:
+                    self._true_positives[label] += score(frame, label)
+                    gold_spans.remove(span)
+                else:
+                    self._false_positives[label] += score(frame, label)
+            # These spans weren't predicted.
+            for span in gold_spans:
+                label = span[2]
+                self._false_negatives[label] += score(frame, label)
 
     def _extract_spans(self, tag_matrix: List[List[int]], merge: bool = False) -> Set[Tuple[int, int, str]]:
         """
@@ -335,17 +188,16 @@ class NonBioSpanBasedF1Measure(Metric):
         if not labeled_spans:
             return labeled_spans
         # Create a sorted copy.
-        sorted_spans = sorted([x for x in list(labeled_spans)])
-        prev_start, prev_end, prev_label = sorted_spans[0]
-        for span in sorted_spans[1:]:
-            if span[2] == prev_label and span[0] == prev_end+1:
-                # Merge these two spans.
-                labeled_spans.remove(span)
-                labeled_spans.remove((prev_start, prev_end, prev_label))
-                labeled_spans.add((prev_start, span[1], prev_label))
-                prev_end = span[1]
+        args = sorted([x for x in list(labeled_spans)])
+        start, end, label = args[0]
+        for arg in args[1:]:
+            if arg[2] == label and arg[0] == end+1:
+                labeled_spans.remove(arg)
+                labeled_spans.remove((start, end, label))
+                labeled_spans.add((start, arg[1], label))
+                end = arg[1]
             else:
-                prev_start, prev_end, prev_label = span
+                start, end, label = arg
         return labeled_spans
 
     def get_metric(self, reset: bool = False):
@@ -360,12 +212,11 @@ class NonBioSpanBasedF1Measure(Metric):
         Additionally, an ``overall`` key is included, which provides the precision,
         recall and f1-measure for all spans.
         """
-        all_metrics = {}
-
         all_tags: Set[str] = set()
         all_tags.update(self._true_positives.keys())
         all_tags.update(self._false_positives.keys())
         all_tags.update(self._false_negatives.keys())
+        all_metrics = {}
         for tag in all_tags:
             precision, recall, f1_measure = self._compute_metrics(self._true_positives[tag],
                                                                   self._false_positives[tag],
@@ -385,58 +236,6 @@ class NonBioSpanBasedF1Measure(Metric):
         all_metrics["precision-overall"] = precision
         all_metrics["recall-overall"] = recall
         all_metrics["f1-measure-overall"] = f1_measure
-
-        # Compute unlabeled metrics.
-        u_precision, u_recall, u_f1_measure = self._compute_metrics(self._unlabeled_true_positives,
-                                                                    self._unlabeled_false_positives,
-                                                                    self._unlabeled_false_negatives)
-        all_metrics["U-p"] = u_precision
-        all_metrics["U-r"] = u_recall
-        all_metrics["U-f1"] = u_f1_measure
-
-        # Compute partial metrics.
-        t_precision, t_recall, t_f1_measure = self._compute_metrics(self._partial_true_positives,
-                                                                    self._partial_false_positives,
-                                                                    self._partial_false_negatives)
-        all_metrics["part-p"] = t_precision
-        all_metrics["part-r"] = t_recall
-        all_metrics["part-f1"] = t_f1_measure
-
-        # Compute width-wise metrics.
-        all_wtags: Set[int] = set()
-        all_wtags.update(self._width_tp.keys())
-        all_wtags.update(self._width_fp.keys())
-        all_wtags.update(self._width_fn.keys())
-        for tag in all_wtags:
-            precision, recall, f1_measure = self._compute_metrics(self._width_tp[tag],
-                                                                  self._width_fp[tag],
-                                                                  self._width_fn[tag])
-            precision_key = "W-p-{}".format(tag)
-            recall_key = "W-r-{}".format(tag)
-            f1_key = "W-f1-{}".format(tag)
-            all_metrics[precision_key] = precision
-            all_metrics[recall_key] = recall
-            all_metrics[f1_key] = f1_measure
-
-        # Compute distance-wise metrics.
-        all_dtags: Set[int] = set()
-        all_dtags.update(self._dist_tp.keys())
-        all_dtags.update(self._dist_fp.keys())
-        all_dtags.update(self._dist_fn.keys())
-        for tag in all_dtags:
-            precision, recall, f1_measure = self._compute_metrics(self._dist_tp[tag],
-                                                                  self._dist_fp[tag],
-                                                                  self._dist_fn[tag])
-            precision_key = "D-p-{}".format(tag)
-            recall_key = "D-r-{}".format(tag)
-            f1_key = "D-f1-{}".format(tag)
-            all_metrics[precision_key] = precision
-            all_metrics[recall_key] = recall
-            all_metrics[f1_key] = f1_measure
-
-        all_metrics["gold_spans"] = self._gold_spans
-        all_metrics["predicted_spans"] = self._predicted_spans
-
         if reset:
             self.reset()
         return all_metrics
@@ -454,22 +253,3 @@ class NonBioSpanBasedF1Measure(Metric):
         self._true_positives = defaultdict(int)
         self._false_positives = defaultdict(int)
         self._false_negatives = defaultdict(int)
-
-        self._unlabeled_true_positives = 0
-        self._unlabeled_false_positives = 0
-        self._unlabeled_false_negatives = 0
-
-        self._partial_false_negatives = 0
-        self._partial_false_positives = 0
-        self._partial_true_positives = 0
-
-        self._width_tp = defaultdict(int)
-        self._width_fp = defaultdict(int)
-        self._width_fn = defaultdict(int)
-
-        self._dist_tp = defaultdict(int)
-        self._dist_fp = defaultdict(int)
-        self._dist_fn = defaultdict(int)
-
-        self._gold_spans = []
-        self._predicted_spans = []

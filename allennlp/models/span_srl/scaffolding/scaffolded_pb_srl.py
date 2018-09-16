@@ -19,9 +19,17 @@ from allennlp.training.metrics import NonBioSpanBasedF1Measure
 
 
 @Model.register("scaffolded_pb_srl")
-class ScaffoldedPropBankSrl(Model):
+class ScaffoldedPropBankSRL(Model):
     """
-    This model performs semantic role labeling for PropBank with a syntactic scaffold.
+    This model performs semantic role labeling using BIO tags using Propbank semantic roles.
+    Specifically, it is an implmentation of `Deep Semantic Role Labeling - What works
+    and what's next <https://homes.cs.washington.edu/~luheng/files/acl2017_hllz.pdf>`_ .
+
+    This implementation is effectively a series of stacked interleaved LSTMs with highway
+    connections, applied to embedded sequences of words concatenated with a binary indicator
+    containing whether or not a word is the verbal predicate to generate predictions for in
+    the sentence. Additionally, during inference, Viterbi decoding is applied to constrain
+    the predictions to contain valid BIO sequences.
 
     Parameters
     ----------
@@ -38,16 +46,13 @@ class ScaffoldedPropBankSrl(Model):
         This is needed to compute the SpanBasedF1Measure metric.
         Unless you did something unusual, the default value should be what you want.
         TODO(swabha) : may screw up?
-    fast_mode: ``bool``, option (default=``True``)
-        In this mode, we compute loss only on the train set and evaluate only on the dev set.
     initializer : ``InitializerApplicator``, optional (default=``InitializerApplicator()``)
         Used to initialize the model parameters.
     regularizer : ``RegularizerApplicator``, optional (default=``None``)
         If provided, will be used to calculate the regularization penalty during training.
     """
 
-    def __init__(self,
-                 vocab: Vocabulary,
+    def __init__(self, vocab: Vocabulary,
                  text_field_embedder: TextFieldEmbedder,
                  stacked_encoder: Seq2SeqEncoder,
                  span_feedforward: FeedForward,
@@ -56,15 +61,14 @@ class ScaffoldedPropBankSrl(Model):
                  binary_feature_size: int,
                  distance_feature_size: int,
                  embedding_dropout: float = 0.2,
-                 srl_label_namespace: str = "labels",
-                 constit_label_namespace: str = "constit_labels",
+                 label_namespace: str = "labels",
+                 use_pp_np: bool = False,
+                 scaffold_label_namespace: str = "constit_labels",
                  fast_mode: bool = True,
                  loss_type: str = "hamming",
-                 unlabeled_constits: bool = False,
-                 np_pp_constits: bool = False,
                  initializer: InitializerApplicator = InitializerApplicator(),
                  regularizer: Optional[RegularizerApplicator] = None) -> None:
-        super(ScaffoldedPropBankSrl, self).__init__(vocab, regularizer)
+        super(ScaffoldedPropBankSRL, self).__init__(vocab, regularizer)
 
         # Base token-level encoding.
         self.text_field_embedder = text_field_embedder
@@ -73,57 +77,46 @@ class ScaffoldedPropBankSrl(Model):
         self.binary_feature_embedding = Embedding(2, binary_feature_dim)
         self.stacked_encoder = stacked_encoder
         if text_field_embedder.get_output_dim() + binary_feature_dim != stacked_encoder.get_input_dim():
-            raise ConfigurationError("The input dimension of the stacked_encoder must be equal to "
-                                     "the output dimension of the text_field_embedder.")
+            raise ConfigurationError("The SRL Model uses a binary verb indicator feature, meaning "
+                                     "the input dimension of the stacked_encoder must be equal to "
+                                     "the output dimension of the text_field_embedder + 1.")
 
         # Span-level encoding.
         self.max_span_width = max_span_width
         self.span_width_embedding = Embedding(max_span_width, binary_feature_size)
-        # Based on the average sentence length in FN train.
+        # Based on the average sentence length in FN train. TODO(Swabha): find out for OntoNotes.
         self.span_distance_bin = 25
         self.span_distance_embedding = Embedding(self.span_distance_bin, distance_feature_size)
         self.span_direction_embedding = Embedding(2, binary_feature_size)
         self.span_feedforward = TimeDistributed(span_feedforward)
         self.head_scorer = TimeDistributed(torch.nn.Linear(stacked_encoder.get_output_dim(), 1))
 
-        # Parameters for PB SRL.
-        self.num_srl_args = self.vocab.get_vocab_size(srl_label_namespace)
-        not_a_span_tag = self.vocab.get_token_index("*", srl_label_namespace)
-        outside_span_tag = self.vocab.get_token_index("O", srl_label_namespace)
-        self.semi_crf = SemiMarkovConditionalRandomField(num_tags=self.num_srl_args,
+        self.num_classes = self.vocab.get_vocab_size(label_namespace)
+        not_a_span_tag = self.vocab.get_token_index("*", label_namespace)
+        outside_span_tag = self.vocab.get_token_index("O", label_namespace)
+        self.semi_crf = SemiMarkovConditionalRandomField(num_tags=self.num_classes,
                                                          max_span_width=max_span_width,
+                                                         loss_type=loss_type,
                                                          default_tag=not_a_span_tag,
-                                                         outside_span_tag=outside_span_tag,
-                                                         loss_type=loss_type)
-        # Parameters for the syntactic scaffold.
-        # TODO(Swabha): single function parameter for scaffold type.
-        self.unlabeled_constits = unlabeled_constits
-        self.np_pp_constits = np_pp_constits
-        self.constit_label_namespace = constit_label_namespace
-
-        assert not (unlabeled_constits and np_pp_constits)
-        if unlabeled_constits:
-            self.num_constit_tags = 2
-        elif np_pp_constits:
-            self.num_constit_tags = 3
-        else:
-            self.num_constit_tags = self.vocab.get_vocab_size(constit_label_namespace)
+                                                         outside_span_tag=outside_span_tag)
 
         # Topmost MLP.
-        self.srl_arg_projection_layer = TimeDistributed(Linear(span_feedforward.get_output_dim(),
-                                                               self.num_srl_args))
-        self.constit_arg_projection_layer = TimeDistributed(Linear(span_feedforward.get_output_dim(),
-                                                                   self.num_constit_tags))
+        self.tag_projection_layer = TimeDistributed(
+                Linear(span_feedforward.get_output_dim(), self.num_classes))
 
         # Evaluation.
-        self.metrics = {
-            "constituents": NonBioSpanBasedF1Measure(vocab,
-                                                     tag_namespace=constit_label_namespace,
-                                                     ignore_classes=["*"]),
-            "srl": NonBioSpanBasedF1Measure(vocab,
-                                            tag_namespace=srl_label_namespace,
-                                            ignore_classes=["V", "*"])
-        }
+        # For the span based evaluation, we don't want to consider labels
+        # for verb, because the verb index is provided to the model.
+        self.non_bio_span_metric = NonBioSpanBasedF1Measure(vocab,
+                                                            tag_namespace=label_namespace,
+                                                            ignore_classes=["V", "*"])
+
+        # Scaffold-specific.
+        self.scaffold_label_namespace = scaffold_label_namespace
+        self.num_classes_scaffold = self.vocab.get_vocab_size(scaffold_label_namespace)
+        self.use_pp_np = use_pp_np
+        self.scaffold_tag_projection_layer = TimeDistributed(Linear(span_feedforward.get_output_dim(),
+                                                                    self.num_classes_scaffold))
 
         # Mode for the model, if turned on it only evaluates on dev and calculates loss for train.
         self.fast_mode = fast_mode
@@ -173,22 +166,20 @@ class ScaffoldedPropBankSrl(Model):
             A scalar loss to be optimised.
 
         """
+        if "verb_indicator" in kwargs and kwargs["verb_indicator"] is not None:
+            verb_indicator = kwargs["verb_indicator"]
+        elif "targets" in kwargs and kwargs["targets"] is not None:
+            verb_indicator = kwargs["targets"]
+        else:
+            raise KeyError("neither verb_indicator nor targets in input!")
+
         embedded_text_input = self.embedding_dropout(self.text_field_embedder(tokens))
         text_mask = util.get_text_field_mask(tokens)
-
-        pb_batch = False
-        if 'verb_indicator' in kwargs and kwargs['verb_indicator'] is not None:
-            targets = kwargs['verb_indicator']
-            pb_batch = True
-        elif 'targets' in kwargs and kwargs['targets'] is not None:
-            targets = kwargs['targets']
-        else:
-            raise Exception('Missing verb indicator or targets. PB batch? {}'.format(pb_batch))
-
-        embedded_verb_indicator = self.binary_feature_embedding(targets.long())
+        embedded_verb_indicator = self.binary_feature_embedding(verb_indicator.long())
         # Concatenate the verb feature onto the embedded text. This now
         # has shape (batch_size, sequence_length, embedding_dim + binary_feature_dim).
-        embedded_text_with_verb_indicator = torch.cat([embedded_text_input, embedded_verb_indicator], -1)
+        embedded_text_with_verb_indicator = torch.cat(
+                [embedded_text_input, embedded_verb_indicator], -1)
         embedding_dim_with_binary_feature = embedded_text_with_verb_indicator.size()[2]
 
         if self.stacked_encoder.get_input_dim() != embedding_dim_with_binary_feature:
@@ -206,7 +197,6 @@ class ScaffoldedPropBankSrl(Model):
         span_starts = F.relu(span_starts.float()).long().view(batch_size, -1)
         span_ends = F.relu(span_ends.float()).long().view(batch_size, -1)
         target_index = F.relu(target_index.float()).long().view(batch_size)
-
         # shape (batch_size, sequence_length * max_span_width, embedding_dim)
         span_embeddings = span_srl_util.compute_span_representations(self.max_span_width,
                                                                      encoded_text,
@@ -220,94 +210,49 @@ class ScaffoldedPropBankSrl(Model):
                                                                      self.head_scorer)
         span_scores = self.span_feedforward(span_embeddings)
 
-        # Now do model-specific things.
-        if pb_batch:  # PropBank SRL batch.
-            output_dict = self.compute_srl_graph(span_scores=span_scores,
-                                                 tags=tags,
-                                                 text_mask=text_mask,
-                                                 target_index=target_index)
-        else:  # Scaffold batch.
-            if "span_mask" in kwargs and kwargs["span_mask"] is not None:
-                span_mask = kwargs["span_mask"]
-            if "parent_tags" in kwargs and kwargs["parent_tags"] is not None:
-                parent_tags = kwargs["parent_tags"]
-            if self.unlabeled_constits:
-                not_a_constit = self.vocab.get_token_index("*", self.constit_label_namespace)
-                tags = (tags != not_a_constit).float().view(batch_size, -1, self.max_span_width)
-            elif self.constit_label_namespace == "parent_labels":
-                tags = parent_tags.view(batch_size, -1, self.max_span_width)
-            elif self.np_pp_constits:
-                tags = self.get_new_tags_np_pp(tags, batch_size)
-            output_dict = self.compute_constit_graph(span_mask=span_mask,
-                                                     span_scores=span_scores,
-                                                     constit_tags=tags,
-                                                     text_mask=text_mask)
+        # Scaffold Batch.
+        if "span_mask" in kwargs and kwargs["span_mask"] is not None:
+            span_mask = kwargs["span_mask"]
+            assert self.training  # Scaffold must only be used during training.
 
+            logits = self.scaffold_tag_projection_layer(span_scores)
+            logits_reshaped = logits.view(batch_size, num_spans, -1)
+            if self.use_pp_np:
+                tags = self.get_new_tags_np_pp(tags, batch_size)
+            tags_reshaped = tags.view(batch_size, -1)
+            loss = util.sequence_cross_entropy_with_logits(logits_reshaped,
+                                                           tags_reshaped,
+                                                           span_mask)
+            output_dict = {"loss": loss}
+            return output_dict
+
+        # PropBank SRL Batch.
+        logits = self.tag_projection_layer(span_scores)
+        output_dict = {"logits": logits, "mask": text_mask}
+
+        # Viterbi decoding
+        if not self.training or (self.training and not self.fast_mode):
+            predicted_tags, class_probabilities = self.semi_crf.viterbi_tags(logits, text_mask)
+            output_dict["tags"] = predicted_tags
+            output_dict["class_probabilities"] = class_probabilities
+            self.non_bio_span_metric(predictions=predicted_tags.view(batch_size, -1, self.max_span_width),
+                                     gold_labels=tags,
+                                     mask=text_mask)
+
+        # Loss computation
+        if self.training or (not self.training and not self.fast_mode):
+            if tags is not None:
+                log_likelihood, _ = self.semi_crf(logits, tags, mask=text_mask)
+                output_dict["loss"] = -log_likelihood
         if self.fast_mode and not self.training:
             output_dict["loss"] = Variable(torch.FloatTensor([0.00]))
 
         return output_dict
 
-    def compute_srl_graph(self, span_scores, tags, text_mask, target_index):
-        srl_logits = self.srl_arg_projection_layer(span_scores)
-        output_dict = {"srl_logits": srl_logits, "mask": text_mask}
-
-        batch_size = tags.size(0)
-        # Viterbi decoding
-        if not self.training or (self.training and not self.fast_mode):
-            srl_prediction, srl_probabilites = self.semi_crf.viterbi_tags(srl_logits,
-                                                                           text_mask)
-            output_dict["tags"] = srl_prediction
-            output_dict["srl_probabilities"] = srl_probabilites
-
-            self.metrics["srl"](predictions=srl_prediction.view(batch_size, -1, self.max_span_width),
-                                gold_labels=tags,
-                                mask=text_mask,
-                                target_indices=target_index)
-
-        # Loss computation
-        if self.training or (not self.training and not self.fast_mode):
-            if tags is not None:
-                srl_log_likelihood, _ = self.semi_crf(srl_logits,
-                                                      tags,
-                                                      mask=text_mask)
-                output_dict["loss"] = -srl_log_likelihood
-
-        return output_dict
-
-    def compute_constit_graph(self, span_scores, span_mask, constit_tags, text_mask):
-        # Shape (batch_size, sequence_length * max_span_width, self.num_classes)
-        constit_logits = self.constit_arg_projection_layer(span_scores)
-        output_dict = {"constit_logits": constit_logits, "mask": text_mask}
-
-        # Decoding
-        if not self.training or (self.training and not self.fast_mode):
-            reshaped_log_probs = constit_logits.view(-1, self.num_constit_tags)
-            batch_size = text_mask.size(0)
-            constit_probabilities = F.softmax(reshaped_log_probs,
-                                              dim=-1).view(batch_size, -1, self.num_constit_tags)
-            constit_predictions = constit_probabilities.max(-1)[1]
-            output_dict["constit_probabilities"] = constit_probabilities
-            self.metrics["constituents"](predictions=constit_predictions.view(batch_size, -1, self.max_span_width),
-                                         gold_labels=constit_tags,
-                                         mask=text_mask)
-
-        # Loss computation
-        if self.training or (not self.training and not self.fast_mode):
-            if constit_tags is not None:
-                # Flattening it out.
-                flat_tags = constit_tags.view(batch_size, -1)
-                cross_entropy_loss = util.sequence_cross_entropy_with_logits(constit_logits,
-                                                                             flat_tags,
-                                                                             span_mask)
-                output_dict["loss"] = cross_entropy_loss
-
-        return output_dict
-
     def get_new_tags_np_pp(self, tags: torch.Tensor, batch_size: int)-> torch.Tensor:
-        not_a_constit = self.vocab.get_token_index("*", self.constit_label_namespace)
-        np_constit = self.vocab.get_token_index("NP", self.constit_label_namespace)
-        pp_constit = self.vocab.get_token_index("PP", self.constit_label_namespace)
+        not_a_constit = self.vocab.get_token_index("*", self.scaffold_label_namespace)
+        np_constit = self.vocab.get_token_index("NP", self.scaffold_label_namespace)
+        pp_constit = self.vocab.get_token_index("PP", self.scaffold_label_namespace)
 
         other_tags = (tags != not_a_constit) & (tags != np_constit) & (tags != pp_constit)
         np_pp_tags = (tags == np_constit) | (tags == pp_constit)
@@ -318,32 +263,22 @@ class ScaffoldedPropBankSrl(Model):
     @overrides
     def decode(self, output_dict: Dict[str, torch.Tensor]) -> Dict[str, torch.Tensor]:
         """
-        Required only to run decoding and printing of output. Not implemented.
+        Not necessary for us.
         """
         raise NotImplementedError
 
     def get_metrics(self, reset: bool = False):
-        short = {"precision-overall": "c-prec",
-                 "recall-overall": "c-rec",
-                 "f1-measure-overall": "c-f1"}
-        metric_dict = {}
-        for task in self.metrics:
-            task_metric_dict = self.metrics[task].get_metric(reset=reset)
-            for x, y in task_metric_dict.items():
-                if "overall" in x:
-                    if task == "constituents":
-                        metric_dict[short[x]] = y
-                    else:
-                        metric_dict[x] = y
-            # if self.training:
-            # This can be a lot of metrics, as there are 3 per class.
-            # During training, we only really care about the overall
-            # metrics, so we filter for them here.
-            # TODO(Mark): This is fragile and should be replaced with some verbosity level in Trainer.
-        return metric_dict
+        metric_dict = self.non_bio_span_metric.get_metric(reset=reset)
+        # if self.training:
+        # This can be a lot of metrics, as there are 3 per class.
+        # During training, we only really care about the overall
+        # metrics, so we filter for them here.
+        # TODO(Mark): This is fragile and should be replaced with some verbosity level in Trainer.
+        return {x: y for x, y in metric_dict.items() if "overall" in x}
+        # return metric_dict
 
     @classmethod
-    def from_params(cls, vocab: Vocabulary, params: Params) -> 'ScaffoldedPropBankSrl':
+    def from_params(cls, vocab: Vocabulary, params: Params) -> 'ScaffoldedPropBankSRL':
         embedder_params = params.pop("text_field_embedder")
         text_field_embedder = TextFieldEmbedder.from_params(vocab, embedder_params)
         stacked_encoder = Seq2SeqEncoder.from_params(params.pop("stacked_encoder"))
@@ -352,12 +287,11 @@ class ScaffoldedPropBankSrl(Model):
         max_span_width = params.pop("max_span_width")
         binary_feature_size = params.pop("feature_size")
         distance_feature_size = params.pop("distance_feature_size", 5)
+        use_pp_np = params.pop("use_pp_np", False)
         fast_mode = params.pop("fast_mode", True)
         loss_type = params.pop("loss_type", "hamming")
-        srl_label_namespace = params.pop("label_namespace", "labels")
-        constit_label_namespace = params.pop("constit_label_namespace", "constit_labels")
-        unlabeled_constits = params.pop('unlabeled_constits', False)
-        np_pp_constits = params.pop('np_pp_constits', False)
+        label_namespace = params.pop("label_namespace", "labels")
+        scaffold_label_namespace = params.pop("scaffold_label_namespace", "constit_labels")
         initializer = InitializerApplicator.from_params(params.pop('initializer', []))
         regularizer = RegularizerApplicator.from_params(params.pop('regularizer', []))
 
@@ -369,11 +303,10 @@ class ScaffoldedPropBankSrl(Model):
                    max_span_width=max_span_width,
                    binary_feature_size=binary_feature_size,
                    distance_feature_size=distance_feature_size,
-                   srl_label_namespace=srl_label_namespace,
-                   constit_label_namespace=constit_label_namespace,
-                   unlabeled_constits=unlabeled_constits,
-                   np_pp_constits=np_pp_constits,
-                   fast_mode=fast_mode,
+                   label_namespace=label_namespace,
+                   scaffold_label_namespace=scaffold_label_namespace,
+                   use_pp_np=use_pp_np,
                    loss_type=loss_type,
+                   fast_mode=fast_mode,
                    initializer=initializer,
                    regularizer=regularizer)

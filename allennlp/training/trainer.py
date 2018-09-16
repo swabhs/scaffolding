@@ -287,8 +287,6 @@ class Trainer:
         Sends all of the train metrics (and validation metrics, if provided) to tensorboard.
         """
         for name, value in train_metrics.items():
-            if "overall" not in name and "loss" not in name:
-                continue
             self._tensorboard.add_train_scalar(name, value, epoch)
             if val_metrics:
                 self._tensorboard.add_validation_scalar(name, val_metrics[name], epoch)
@@ -305,8 +303,6 @@ class Trainer:
             message_template = "Training %s : %3f "
 
         for name, value in train_metrics.items():
-            if "overall" not in name and "loss" not in name:
-                continue
             if val_metrics:
                 logger.info(message_template, name, value, name, val_metrics[name])
             else:
@@ -421,7 +417,7 @@ class Trainer:
 
     def _description_from_metrics(self, metrics: Dict[str, float]) -> str:
         # pylint: disable=no-self-use
-        return ', '.join(["%s: %.3f" % (name, value) for name, value in metrics.items() if "overall" in name or "loss" in name]) + " ||"
+        return ', '.join(["%s: %.3f" % (name, value) for name, value in metrics.items()]) + " ||"
 
     def _save_checkpoint(self,
                          epoch: int,

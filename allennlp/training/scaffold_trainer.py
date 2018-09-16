@@ -11,7 +11,7 @@ import logging
 import os
 import shutil
 import time
-from typing import Dict, Optional, List, Tuple, Generator
+from typing import Dict, Optional, List, Tuple
 
 import torch
 import torch.optim.lr_scheduler
@@ -29,22 +29,38 @@ from allennlp.models.model import Model
 from allennlp.nn import util
 from allennlp.training.learning_rate_schedulers import LearningRateScheduler
 from allennlp.training.optimizers import Optimizer
-from allennlp.training.trainer import TensorboardWriter
 logger = logging.getLogger(__name__)  # pylint: disable=invalid-name
 
 
-class MultiTaskTrainer:
+class TensorboardWriter:
+    """
+    Wraps a pair of ``SummaryWriter`` instances but is a no-op if they're ``None``.
+    Allows Tensorboard logging without always checking for Nones first.
+    """
+    def __init__(self, train_log: SummaryWriter = None, validation_log: SummaryWriter = None) -> None:
+        self._train_log = train_log
+        self._validation_log = validation_log
+
+    def add_train_scalar(self, name: str, value: float, global_step: int) -> None:
+        if self._train_log is not None:
+            self._train_log.add_scalar(name, value, global_step)
+
+    def add_validation_scalar(self, name: str, value: float, global_step: int) -> None:
+        if self._validation_log is not None:
+            self._validation_log.add_scalar(name, value, global_step)
+
+
+class ScaffoldTrainer:
     def __init__(self,
                  model: Model,
                  optimizer: torch.optim.Optimizer,
                  iterator: DataIterator,
-                 iterator_aux: DataIterator,
                  train_dataset: Dataset,
-                 train_dataset_aux: Dataset,
-                 mixing_ratio: float = 0.17,
+                 aux_iterator: DataIterator,
+                 aux_train_dataset: Dataset,
+                 mixing_ratio: float = 1.0,
                  cutoff_epoch: int = -1,
                  validation_dataset: Optional[Dataset] = None,
-                 validation_dataset_aux: Optional[Dataset] = None,
                  patience: int = 2,
                  validation_metric: str = "-loss",
                  num_epochs: int = 20,
@@ -107,12 +123,12 @@ class MultiTaskTrainer:
         """
         self._model = model
         self._iterator = iterator
-        self._iterator_aux = iterator_aux
         self._optimizer = optimizer
         self._train_dataset = train_dataset
-        self._train_dataset_aux = train_dataset_aux
         self._validation_dataset = validation_dataset
-        self._validation_dataset_aux = validation_dataset_aux
+
+        self._aux_iterator = aux_iterator
+        self._aux_train_dataset = aux_train_dataset
         self._mixing_ratio = mixing_ratio
         self._cutoff_epoch = cutoff_epoch
 
@@ -153,7 +169,7 @@ class MultiTaskTrainer:
         if self._grad_clipping is not None:
             # Pylint is unable to tell that we're in the case that _grad_clipping is not None...
             # pylint: disable=invalid-unary-operand-type
-            def clip_function(grad): return grad.clamp(-self._grad_clipping, self._grad_clipping)
+            clip_function = lambda grad: grad.clamp(-self._grad_clipping, self._grad_clipping)
             for parameter in self._model.parameters():
                 if parameter.requires_grad:
                     parameter.register_hook(clip_function)
@@ -165,14 +181,13 @@ class MultiTaskTrainer:
         if self._grad_norm:
             clip_grad_norm(self._model.parameters(), self._grad_norm)
 
-    def _batch_loss(self, batch: torch.Tensor,
-                    for_training: bool,
-                    batch_aux: torch.Tensor=None) -> torch.Tensor:
+    def _batch_loss(self, batch: torch.Tensor, for_training: bool, aux_batch: torch.Tensor = None) -> torch.Tensor:
         """
         Does a forward pass on the given batch and returns the ``loss`` value in the result.
         If ``for_training`` is `True` also applies regularization penalty.
         """
         output_dict = self._model(**batch)
+
         try:
             loss = output_dict["loss"]
             if for_training:
@@ -181,17 +196,16 @@ class MultiTaskTrainer:
             raise ConfigurationError("The model you are trying to optimize does not contain a"
                                      " 'loss' key in the output of model.forward(inputs).")
 
-        if batch_aux is not None:
-            output_dict_aux = self._model(**batch_aux)
+        if aux_batch is not None:
+            aux_output_dict = self._model(**aux_batch)
             try:
-                loss_aux = output_dict_aux["loss"]
+                aux_loss = aux_output_dict["loss"]
                 if for_training:
-                    loss_aux += self._model.get_regularization_penalty()
+                    aux_loss += self._model.get_regularization_penalty()
             except KeyError:
-                raise ConfigurationError("The auxilliary model you are trying to optimize does not contain a"
-                                         " 'loss' key in the output of model.forward(inputs).")
+                raise ConfigurationError("No `loss` key in output_dict for auxiliary batch.")
+            loss += self._mixing_ratio * aux_loss
 
-            loss = loss + self._mixing_ratio * loss_aux
         return loss
 
     def _get_metrics(self, total_loss: float, batch_num: int, reset: bool = False) -> dict:
@@ -221,31 +235,19 @@ class MultiTaskTrainer:
         train_generator_tqdm = tqdm.tqdm(train_generator,
                                          disable=self._no_tqdm,
                                          total=num_training_batches)
-
-        train_generator_aux = self._iterator_aux(self._train_dataset_aux,
+        aux_train_generator = self._aux_iterator(self._aux_train_dataset,
                                                  num_epochs=1,
                                                  cuda_device=self._cuda_device)
 
         self._last_log = time.time()
         batch_num = 0
 
-        scaffolded_training = False
-        if epoch > self._cutoff_epoch:
-            scaffolded_training = True
-            logger.info("Scaffolded Training")
-        else:
-            logger.info("Training")
-
-        for batch, batch_aux in zip(train_generator_tqdm, train_generator_aux):
+        logger.info("Training")
+        for batch, aux_batch in zip(train_generator_tqdm, aux_train_generator):
             batch_num += 1
             self._optimizer.zero_grad()
 
-            if scaffolded_training:
-                loss = self._batch_loss(batch,
-                                        for_training=True,
-                                        batch_aux=batch_aux)
-            else:
-                loss = self._batch_loss(batch, for_training=True)
+            loss = self._batch_loss(batch, for_training=True, aux_batch=aux_batch)
             loss.backward()
 
             # Make sure Variable is on the cpu before converting to numpy.
@@ -268,8 +270,7 @@ class MultiTaskTrainer:
                     self._tensorboard.add_train_scalar("parameter_mean/" + name,
                                                        param.data.mean(),
                                                        batch_num_total)
-                    self._tensorboard.add_train_scalar("parameter_std/" + name, param.data.std(),
-                                                       batch_num_total)
+                    self._tensorboard.add_train_scalar("parameter_std/" + name, param.data.std(), batch_num_total)
                     if param.grad is not None:
                         self._tensorboard.add_train_scalar("gradient_mean/" + name,
                                                            param.grad.data.mean(),
@@ -277,8 +278,7 @@ class MultiTaskTrainer:
                         self._tensorboard.add_train_scalar("gradient_std/" + name,
                                                            param.grad.data.std(),
                                                            batch_num_total)
-                self._tensorboard.add_train_scalar("loss/loss_train", metrics["loss"],
-                                                   batch_num_total)
+                self._tensorboard.add_train_scalar("loss/loss_train", metrics["loss"], batch_num_total)
                 self._metrics_to_tensorboard(batch_num_total,
                                              {"epoch_metrics/" + k: v for k, v in metrics.items()})
 
@@ -310,12 +310,9 @@ class MultiTaskTrainer:
         Sends all of the train metrics (and validation metrics, if provided) to tensorboard.
         """
         for name, value in train_metrics.items():
-            if "overall" not in name and "loss" not in name:
-                continue
             self._tensorboard.add_train_scalar(name, value, epoch)
             if val_metrics:
-                self._tensorboard.add_validation_scalar(
-                    name, val_metrics[name], epoch)
+                self._tensorboard.add_validation_scalar(name, val_metrics[name], epoch)
 
     def _metrics_to_console(self,  # pylint: disable=no-self-use
                             train_metrics: dict,
@@ -329,11 +326,8 @@ class MultiTaskTrainer:
             message_template = "Training %s : %3f "
 
         for name, value in train_metrics.items():
-            if "overall" not in name and "loss" not in name:
-                continue
             if val_metrics:
-                logger.info(message_template, name, value,
-                            name, val_metrics[name])
+                logger.info(message_template, name, value, name, val_metrics[name])
             else:
                 logger.info(message_template, name, value)
 
@@ -345,8 +339,7 @@ class MultiTaskTrainer:
         # needs to be passed to the scheduler. This is required because the
         # step() function of the different schedulers are (understandably)
         # different to ReduceLROnPlateau.
-        reduce_on_plateau = isinstance(
-            self._learning_rate_scheduler, torch.optim.lr_scheduler.ReduceLROnPlateau)
+        reduce_on_plateau = isinstance(self._learning_rate_scheduler, torch.optim.lr_scheduler.ReduceLROnPlateau)
 
         if reduce_on_plateau and val_metric is None:
             raise ConfigurationError("The reduce_on_plateau learning rate scheduler requires "
@@ -369,23 +362,12 @@ class MultiTaskTrainer:
                                        num_epochs=1,
                                        cuda_device=self._cuda_device,
                                        for_training=False)
-
         num_validation_batches = self._iterator.get_num_batches(self._validation_dataset)
         val_generator_tqdm = tqdm.tqdm(val_generator,
                                        disable=self._no_tqdm,
                                        total=num_validation_batches)
-
-        # val_generator_aux = self._iterator_aux(self._validation_dataset_aux,
-        #                                    num_epochs=1,
-        #                                    cuda_device=self._cuda_device,
-        #                                    for_training=False)
-        # assert num_validation_batches <= self._iterator_aux.get_num_batches(self._validation_dataset_aux)
-        # # It is okay to not validate over the entire auxillary dev, but not vice versa.
-        # aux_downsized = self.sample_from_generator(val_generator_aux, num_validation_batches)
-
         batch_num = 0
         val_loss = 0
-        # for batch, batch_aux in zip(val_generator_tqdm, aux_downsized):
         for batch in val_generator_tqdm:
             batch_num += 1
 
@@ -447,20 +429,18 @@ class MultiTaskTrainer:
             self._update_learning_rate(epoch, val_metric=this_epoch_val_metric)
 
             epoch_elapsed_time = time.time() - epoch_start_time
-            logger.info("Epoch duration: %s", time.strftime("%H:%M:%S",
-                                                            time.gmtime(epoch_elapsed_time)))
+            logger.info("Epoch duration: %s", time.strftime("%H:%M:%S", time.gmtime(epoch_elapsed_time)))
 
             if epoch < self._num_epochs - 1:
                 training_elapsed_time = time.time() - training_start_time
                 estimated_time_remaining = training_elapsed_time * \
-                    ((self._num_epochs - epoch_counter) /
-                     float(epoch - epoch_counter + 1) - 1)
+                    ((self._num_epochs - epoch_counter) / float(epoch - epoch_counter + 1) - 1)
                 formatted_time = time.strftime("%H:%M:%S", time.gmtime(estimated_time_remaining))
                 logger.info("Estimated training time remaining: %s", formatted_time)
 
     def _description_from_metrics(self, metrics: Dict[str, float]) -> str:
         # pylint: disable=no-self-use
-        return ', '.join(["%s: %.3f" % (name, value) for name, value in metrics.items() if "overall" in name or "loss" in name]) + " ||"
+        return ', '.join(["%s: %.3f" % (name, value) for name, value in metrics.items()]) + " ||"
 
     def _save_checkpoint(self,
                          epoch: int,
@@ -480,8 +460,7 @@ class MultiTaskTrainer:
             be based on some validation metric computed by your model.
         """
         if self._serialization_dir is not None:
-            model_path = os.path.join(
-                self._serialization_dir, "model_state_epoch_{}.th".format(epoch))
+            model_path = os.path.join(self._serialization_dir, "model_state_epoch_{}.th".format(epoch))
             model_state = self._model.state_dict()
             torch.save(model_state, model_path)
 
@@ -493,8 +472,7 @@ class MultiTaskTrainer:
             if is_best:
                 logger.info("Best validation performance so far. "
                             "Copying weights to '%s/best.th'.", self._serialization_dir)
-                shutil.copyfile(model_path, os.path.join(
-                    self._serialization_dir, "best.th"))
+                shutil.copyfile(model_path, os.path.join(self._serialization_dir, "best.th"))
                 archive_model(self._serialization_dir, files_to_archive=self._files_to_archive)
 
     def _restore_checkpoint(self) -> Tuple[int, List[float]]:
@@ -523,20 +501,16 @@ class MultiTaskTrainer:
             return 0, []
 
         serialization_files = os.listdir(self._serialization_dir)
-        model_checkpoints = [
-            x for x in serialization_files if "model_state_epoch" in x]
-        epoch_to_load = max(
-            [int(x.split("model_state_epoch_")[-1].strip(".th")) for x in model_checkpoints])
+        model_checkpoints = [x for x in serialization_files if "model_state_epoch" in x]
+        epoch_to_load = max([int(x.split("model_state_epoch_")[-1].strip(".th")) for x in model_checkpoints])
 
         model_path = os.path.join(self._serialization_dir,
                                   "model_state_epoch_{}.th".format(epoch_to_load))
         training_state_path = os.path.join(self._serialization_dir,
                                            "training_state_epoch_{}.th".format(epoch_to_load))
 
-        model_state = torch.load(
-            model_path, map_location=util.device_mapping(self._cuda_device))
-        training_state = torch.load(
-            training_state_path, map_location=util.device_mapping(self._cuda_device))
+        model_state = torch.load(model_path, map_location=util.device_mapping(self._cuda_device))
+        training_state = torch.load(training_state_path, map_location=util.device_mapping(self._cuda_device))
         self._model.load_state_dict(model_state)
         self._optimizer.load_state_dict(training_state["optimizer"])
 
@@ -544,8 +518,7 @@ class MultiTaskTrainer:
         # that it's part of the trainer state. If it's not there, an empty list is all
         # we can do.
         if "val_metric_per_epoch" not in training_state:
-            logger.warning(
-                "trainer state `val_metric_per_epoch` not found, using empty list")
+            logger.warning("trainer state `val_metric_per_epoch` not found, using empty list")
             val_metric_per_epoch: List[float] = []
         else:
             val_metric_per_epoch = training_state["val_metric_per_epoch"]
@@ -557,15 +530,12 @@ class MultiTaskTrainer:
                     model: Model,
                     serialization_dir: str,
                     iterator: DataIterator,
-                    iterator_aux: DataIterator,
+                    aux_iterator: DataIterator,
                     train_dataset: Dataset,
-                    train_dataset_aux: Dataset,
-                    mixing_ratio: float,
-                    cutoff_epoch: int,
+                    aux_train_dataset: Dataset,
                     validation_dataset: Optional[Dataset],
-                    validation_dataset_aux: Optional[Dataset],
                     params: Params,
-                    files_to_archive: Dict[str, str]) -> 'MultiTaskTrainer':
+                    files_to_archive: Dict[str, str]) -> 'ScaffoldTrainer':
 
         patience = params.pop("patience", 2)
         validation_metric = params.pop("validation_metric", "-loss")
@@ -581,30 +551,31 @@ class MultiTaskTrainer:
         optimizer = Optimizer.from_params(parameters, params.pop("optimizer"))
 
         if lr_scheduler_params:
-            scheduler = LearningRateScheduler.from_params(
-                optimizer, lr_scheduler_params)
+            scheduler = LearningRateScheduler.from_params(optimizer, lr_scheduler_params)
         else:
             scheduler = None
         no_tqdm = params.pop("no_tqdm", False)
 
+        mixing_ratio = params.pop("mixing_ration", 1.0)
+        cutoff_epoch = params.pop("cutoff_epoch", -1)
+
         params.assert_empty(cls.__name__)
-        return MultiTaskTrainer(model=model,
-                                optimizer=optimizer,
-                                iterator=iterator,
-                                iterator_aux=iterator_aux,
-                                train_dataset=train_dataset,
-                                train_dataset_aux=train_dataset_aux,
-                                mixing_ratio=mixing_ratio,
-                                cutoff_epoch=cutoff_epoch,
-                                validation_dataset=validation_dataset,
-                                validation_dataset_aux=validation_dataset_aux,
-                                patience=patience,
-                                validation_metric=validation_metric,
-                                num_epochs=num_epochs,
-                                serialization_dir=serialization_dir,
-                                files_to_archive=files_to_archive,
-                                cuda_device=cuda_device,
-                                grad_norm=grad_norm,
-                                grad_clipping=grad_clipping,
-                                learning_rate_scheduler=scheduler,
-                                no_tqdm=no_tqdm)
+        return ScaffoldTrainer(model=model,
+                               optimizer=optimizer,
+                               iterator=iterator,
+                               train_dataset=train_dataset,
+                               aux_iterator=aux_iterator,
+                               aux_train_dataset=aux_train_dataset,
+                               mixing_ratio=mixing_ratio,
+                               cutoff_epoch=cutoff_epoch,
+                               validation_dataset=validation_dataset,
+                               patience=patience,
+                               validation_metric=validation_metric,
+                               num_epochs=num_epochs,
+                               serialization_dir=serialization_dir,
+                               files_to_archive=files_to_archive,
+                               cuda_device=cuda_device,
+                               grad_norm=grad_norm,
+                               grad_clipping=grad_clipping,
+                               learning_rate_scheduler=scheduler,
+                               no_tqdm=no_tqdm)

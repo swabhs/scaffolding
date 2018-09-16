@@ -6,7 +6,7 @@ import sys
 from allennlp.commands.serve import Serve
 from allennlp.commands.predict import Predict
 from allennlp.commands.train import Train
-from allennlp.commands.train_multitask import TrainMultitask
+from allennlp.commands.train_scaffold import TrainScaffold
 from allennlp.commands.evaluate import Evaluate
 from allennlp.commands.subcommand import Subcommand
 from allennlp.service.predictors import DemoModel
@@ -52,7 +52,7 @@ def main(prog: str = None,
     subcommands = {
         # Default commands
         "train": Train(),
-        "train_m": TrainMultitask(),
+        "train_s": TrainScaffold(),
         "evaluate": Evaluate(),
         "predict": Predict(predictor_overrides),
         "serve": Serve(model_overrides),

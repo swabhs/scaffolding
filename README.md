@@ -1,6 +1,6 @@
 # Scaffolding: Syntactic Scaffolds for Semantic Structures
 
-A repository based on the EMNLP 2018 [paper](http://arxiv.org/TODO) for Frame-Semantic and PropBank Semantic Role Labeling with Syntactic Scaffolding. Code for coreference with a syntactic scaffold coming soon.
+A repository based on the EMNLP 2018 [paper](https://arxiv.org/abs/1808.10485) for Frame-Semantic and PropBank Semantic Role Labeling with Syntactic Scaffolding. Code for coreference with a syntactic scaffold coming soon.
 
 ## Installation
 This repository was built on an earlier version of [AllenNLP](https://github.com/allenai/allennlp).
@@ -45,11 +45,22 @@ Conda-based installation results in [slower rutime](https://github.com/pytorch/p
     pip install http://download.pytorch.org/whl/cu80/torch-0.3.0.post4-cp36-cp36m-linux_x86_64.whl
     ```
 
-## Data
+## Step 1: Get Data
 
-Download [FN data](https://drive.google.com/file/d/15n3M4AmURGdGqnNAjn352buUTV5S-fVI/view?usp=sharing) and place it under a `data` directory under the root directory.
+Download [FN data](https://drive.google.com/file/d/15n3M4AmURGdGqnNAjn352buUTV5S-fVI/view?usp=sharing) and place it under a `data/` directory under the root directory.
 
-## Testing
+## Step 2: Get Pre-trained Models
+
+[Frame-SRL baseline](https://drive.google.com/open?id=1f7ZLOBc65Y74hPQlYY8mGVHkCiN14dwH)
+
+[Frame-SRL scaffold with common non-terminals](https://drive.google.com/open?id=1V1-U70U-wDKaG3zuONQN3eB77jjS3FSd)
+
+[PropBank SRL baseline](https://drive.google.com/file/d/1ThTagaJeZkIACEYfDn6f4mjMHs0PMSAo/view?usp=sharing)
+
+[PropBank SRL scaffold with common non-terminals](https://drive.google.com/file/d/1vv3KC_OLx0A7ItKqBz9yWwZLIsVZhR5B/view?usp=sharing)
+
+
+## Step 3: Test
 
 ```
 python -m allennlp.run evaluate \
@@ -58,6 +69,7 @@ python -m allennlp.run evaluate \
     --cuda-device 0
 ```
 
+Coming Soon: 
 For the syntactic scaffold model for PropBank SRL, use the `pbscaf` branch:
 ```
 git checkout pbscaf
@@ -71,7 +83,7 @@ For scaffolds, use `$command=train_m` and for baselines, `$command=train`.
 python -m allennlp.run $command training_config/$config --serialization-dir log
 ```
 
-### Acknowledgment
+## Acknowledgment
 
 Paper coming soon on ACL Anthology / ArXiv.
 
@@ -80,12 +92,8 @@ Paper coming soon on ACL Anthology / ArXiv.
     author      = {Swabha Swayamdipta and Sam Thomson and Kenton Lee and Luke Zettlemoyer and Chris Dyer and Noah A. Smith},
     title       = {Syntactic Scaffolding for Semantic Structures},
     booktitle   = {Proc. of EMNLP},
+    url         = {https://arxiv.org/abs/1808.10485},
     year        = {2018}
 }
 ```
-
-
-### Pre-trained models
-
-Coming Soon.
 

@@ -57,7 +57,7 @@ Download [FN data](https://drive.google.com/file/d/15n3M4AmURGdGqnNAjn352buUTV5S
 
 [PropBank SRL baseline]()
 
-[PropBank SRL scaffold with common non-terminals]()
+[PropBank SRL scaffold with common non-terminals](https://drive.google.com/file/d/1vv3KC_OLx0A7ItKqBz9yWwZLIsVZhR5B/view?usp=sharing)
 
 
 ## Step 3: Test

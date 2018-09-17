@@ -1,2 +1,1 @@
-from allennlp.models.span_srl.scaffolding.scaffolded_frame_srl import ScaffoldedFrameSrl
 from allennlp.models.span_srl.scaffolding.scaffolded_pb_srl import ScaffoldedPropBankSRL

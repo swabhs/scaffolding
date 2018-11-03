@@ -37,10 +37,7 @@
       }
     },
     "initializer": [
-      [".*_projection_layer.*weight", {"type": "orthogonal"}],
-      [".*_scorer.*weight", {"type": "xavier_normal"}],
-      [".*_feedforward.*weight", {"type": "xavier_normal"}],
-      [".*_embedding.*weight", {"type": "xavier_normal"}]
+      [".*_projection_layer.*weight", {"type": "orthogonal"}]
     ],
     "stacked_encoder": {
       "type": "alternating_highway_lstm_cuda",

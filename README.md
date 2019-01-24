@@ -49,6 +49,8 @@ Conda-based installation results in [slower rutime](https://github.com/pytorch/p
 
 Download [FN data](https://drive.google.com/file/d/15n3M4AmURGdGqnNAjn352buUTV5S-fVI/view?usp=sharing) and place it under a `data/` directory under the root directory.
 
+The [OntoNotes datasets](https://catalog.ldc.upenn.edu/LDC2013T19) can be obtained through LDC.
+
 ## Step 2: Get Pre-trained Models
 
 [Frame-SRL baseline](https://drive.google.com/open?id=1f7ZLOBc65Y74hPQlYY8mGVHkCiN14dwH)

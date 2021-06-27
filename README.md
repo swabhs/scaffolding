@@ -69,7 +69,6 @@ python -m allennlp.run evaluate \
     --cuda-device 0
 ```
 
-Coming Soon: 
 For the syntactic scaffold model for PropBank SRL, use the `pbscaf` branch:
 ```
 git checkout pbscaf
